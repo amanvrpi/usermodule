@@ -88,6 +88,10 @@ public class UserEntity {
     @Schema(name = "profilePic", description = "Profile Picture", example = "profile.jpg")
     private byte[] profilePic;
 
+    @Lob
+    @Column(length = 5000000)
+    @Schema(name = "incomeCert", description = "incomeCert", example = "incomeCert.jpg")
+    private byte[] incomeCert;
     @Schema(name = "role", description = "Roles", example = "USER")
     @ElementCollection
     private List<String> roles = new ArrayList<>();

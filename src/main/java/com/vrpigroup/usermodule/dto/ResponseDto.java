@@ -5,12 +5,24 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
+
 @Schema(name = "ResponseDto", description = "Data Transfer Object for Response")
 public class ResponseDto {
-    @Schema(name = "statusCode", description = "Status Code", example = "200", required = true)
+
+private  Long userId;
+
+    public ResponseDto(String statusCode, String statusMessage) {
+        this.statusCode = statusCode;
+        this.statusMessage = statusMessage;
+    }
+
+    public ResponseDto(Long userId, String statusCode, String statusMessage) {
+        this.userId = userId;
+        this.statusCode = statusCode;
+        this.statusMessage = statusMessage;
+    }
 
     private String statusCode;
-    @Schema(name = "statusMessage", description = "Status Message", example = "User Created Successfully", required = true)
+
     private String statusMessage;
 }

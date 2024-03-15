@@ -70,10 +70,12 @@ public class UserController {
     public ResponseEntity<ResponseDto> createUser(@RequestBody UserDto userModule,
                                                   @RequestParam(value = "profilePhoto", required = false) MultipartFile profilePhoto,
                                                   @RequestParam(value = "aadharFront", required = false) MultipartFile aadharFront,
-                                                  @RequestParam(value = "aadharBack", required = false) MultipartFile aadharBack
+                                                  @RequestParam(value = "aadharBack", required = false) MultipartFile aadharBack,
+                                                  @RequestParam(value = "incomeCert", required = false) MultipartFile incomeCert
+
     ) {
         log.info("UserController:createUser - Creating user account for email: {}", userModule.getEmail());
-        var createdUser = userModuleService.createUser(userModule,profilePhoto, aadharFront, aadharBack);
+        var createdUser = userModuleService.createUser(userModule,profilePhoto, aadharFront, aadharBack,incomeCert);
         if (createdUser != null) {
             log.info("UserController:createUser - User account created successfully for email: {}", userModule.getEmail());
             return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseDto(UserConstants.CREATED_201, UserConstants.CREATED_MESSAGE));
@@ -121,7 +123,7 @@ public class UserController {
                 if (user.isActive()) {
                     if (validateUserForLogin(user, loginDto)) {
                         log.info("UserController:loginUser - Login successful for user: {}", user.getEmail());
-                        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto(UserConstants.HttpStatus_OK, UserConstants.LOGIN_SUCCESSFUL));
+                        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto(user.getId(),UserConstants.HttpStatus_OK, UserConstants.LOGIN_SUCCESSFUL));
                     } else {
                         log.warn("UserController:loginUser - Invalid credentials for user: {}", user.getEmail());
                         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseDto(UserConstants.UNAUTHORIZED_401, UserConstants.INVALID_CREDENTIALS));
@@ -172,9 +174,11 @@ public class UserController {
 
     @PutMapping("/update-doc/{id}")
     public ResponseEntity<ResponseDto> updateUserDocuments(@PathVariable Long id,
-                                                           @RequestParam(value = "profilePhoto", required = false) MultipartFile profilePhoto,
-                                                           @RequestParam(value = "aadharFront", required = false) MultipartFile aadharFront,
-                                                           @RequestParam(value = "aadharBack", required = false) MultipartFile aadharBack) {
+                                                           @RequestParam(value = "profilePhoto", required = true) MultipartFile profilePhoto,
+                                                           @RequestParam(value = "aadharFront", required = true) MultipartFile aadharFront,
+                                                           @RequestParam(value = "aadharBack", required = true) MultipartFile aadharBack,
+                                                           @RequestParam(value = "incomeCert", required = true) MultipartFile incomeCert
+                                                           ) {
         try {
             // Validate file types
             if (profilePhoto != null && !profilePhoto.isEmpty()) {
@@ -197,9 +201,15 @@ public class UserController {
                             .body(new ResponseDto(UserConstants.BAD_REQUEST_400, "Aadhar back must be in PDF format."));
                 }
             }
+            if (incomeCert != null && !incomeCert.isEmpty()) {
+                if (!isValidFileType(aadharBack, "pdf")) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body(new ResponseDto(UserConstants.BAD_REQUEST_400, "incomeCert must be in PDF format."));
+                }
+            }
 
             // Call service method to update user documents
-            Boolean isDocSave =  userModuleService.updateUserDocuments(id, profilePhoto, aadharFront, aadharBack);
+            Boolean isDocSave =  userModuleService.updateUserDocuments(id, profilePhoto, aadharFront, aadharBack, incomeCert);
 
             // Return response based on the result of the service call
             if (isDocSave) {

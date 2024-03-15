@@ -1,17 +1,24 @@
 package com.vrpigroup.usermodule.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 
 @Schema(name = "ResponseDto", description = "Data Transfer Object for Response")
-public class ResponseDto {
+public class LoginResponseDto {
 
 
 
-    public ResponseDto(String statusCode, String statusMessage) {
+    public LoginResponseDto(String statusCode, String statusMessage) {
+        this.statusCode = statusCode;
+        this.statusMessage = statusMessage;
+    }
+
+    private Long id;
+
+    public LoginResponseDto(Long id, String statusCode, String statusMessage) {
+        this.id = id;
         this.statusCode = statusCode;
         this.statusMessage = statusMessage;
     }

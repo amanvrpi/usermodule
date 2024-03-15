@@ -67,15 +67,14 @@ public class UserController {
             summary = "Create User",
             description = "Create user account")
     @PostMapping("/create")
-    public ResponseEntity<ResponseDto> createUser(@RequestBody UserDto userModule,
+    public ResponseEntity<ResponseDto> createUser(@Validated @RequestBody UserDto userModule,
                                                   @RequestParam(value = "profilePhoto", required = false) MultipartFile profilePhoto,
                                                   @RequestParam(value = "aadharFront", required = false) MultipartFile aadharFront,
-                                                  @RequestParam(value = "aadharBack", required = false) MultipartFile aadharBack,
-                                                  @RequestParam(value = "incomeCert", required = false) MultipartFile incomeCert
+                                                  @RequestParam(value = "aadharBack", required = false) MultipartFile aadharBack
 
     ) {
         log.info("UserController:createUser - Creating user account for email: {}", userModule.getEmail());
-        var createdUser = userModuleService.createUser(userModule,profilePhoto, aadharFront, aadharBack,incomeCert);
+        var createdUser = userModuleService.createUser(userModule,profilePhoto, aadharFront, aadharBack);
         if (createdUser != null) {
             log.info("UserController:createUser - User account created successfully for email: {}", userModule.getEmail());
             return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseDto(UserConstants.CREATED_201, UserConstants.CREATED_MESSAGE));
@@ -115,7 +114,7 @@ public class UserController {
             summary = "Login User",
             description = "Login user")
     @PostMapping("/login")
-    public ResponseEntity<ResponseDto> loginUser(@RequestBody LoginDto loginDto) {
+    public ResponseEntity<LoginResponseDto> loginUser(@Validated @RequestBody LoginDto loginDto) {
         try {
             log.info("UserController:loginUser - Attempting login for user: {}", loginDto.getEmail());
             var user = userModuleService.loginUser(loginDto);
@@ -123,22 +122,22 @@ public class UserController {
                 if (user.isActive()) {
                     if (validateUserForLogin(user, loginDto)) {
                         log.info("UserController:loginUser - Login successful for user: {}", user.getEmail());
-                        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto(user.getId(),UserConstants.HttpStatus_OK, UserConstants.LOGIN_SUCCESSFUL));
+                        return ResponseEntity.status(HttpStatus.OK).body(new LoginResponseDto(user.getId(),UserConstants.HttpStatus_OK, UserConstants.LOGIN_SUCCESSFUL));
                     } else {
                         log.warn("UserController:loginUser - Invalid credentials for user: {}", user.getEmail());
-                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseDto(UserConstants.UNAUTHORIZED_401, UserConstants.INVALID_CREDENTIALS));
+                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponseDto(UserConstants.UNAUTHORIZED_401, UserConstants.INVALID_CREDENTIALS));
                     }
                 } else {
                     log.warn("UserController:loginUser - Account not verified for user: {}", user.getEmail());
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseDto(UserConstants.UNAUTHORIZED_401, UserConstants.FAILED_TO_VERIFY_ACCOUNT));
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponseDto(UserConstants.UNAUTHORIZED_401, UserConstants.FAILED_TO_VERIFY_ACCOUNT));
                 }
             } else {
                 log.warn("UserController:loginUser - Invalid credentials for user");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseDto(UserConstants.UNAUTHORIZED_401, UserConstants.INVALID_CREDENTIALS));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponseDto(UserConstants.UNAUTHORIZED_401, UserConstants.INVALID_CREDENTIALS));
             }
         } catch (Exception e) {
             log.error("UserController:loginUser - Error during login for user: {}", loginDto.getEmail(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDto(UserConstants.INTERNAL_SERVER_ERROR_500, UserConstants.FAILED_TO_PROCEED_LOGIN));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new LoginResponseDto(UserConstants.INTERNAL_SERVER_ERROR_500, UserConstants.FAILED_TO_PROCEED_LOGIN));
         }
     }
 

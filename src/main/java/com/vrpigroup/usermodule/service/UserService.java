@@ -64,7 +64,7 @@ public class UserService {
     }
 
     public UserDto createUser(UserDto userDto,MultipartFile profilePhoto,
-                              MultipartFile aadharFront,MultipartFile aadharBack, MultipartFile incomeCert) {
+                              MultipartFile aadharFront,MultipartFile aadharBack) {
             if (userModuleRepository.existsByEmail(userDto.getEmail())) {
                 logger.warn(" email already exists. Cannot create a new user.");
                 throw new UserAlreadyExistException(USER_WITH_USERNAME_OR_EMAIL_ALREADY_EXISTS+userDto.getEmail());
@@ -78,9 +78,7 @@ public class UserService {
                     if (profilePhoto != null && !profilePhoto.isEmpty()) {
                         user.setProfilePic(profilePhoto.getBytes());
                     }
-                    if (profilePhoto != null && !profilePhoto.isEmpty()) {
-                        user.setIncomeCert(incomeCert.getBytes());
-                    }
+
                     if (aadharFront != null && !aadharFront.isEmpty()) {
                         user.setAadharFront(aadharFront.getBytes());
                     }

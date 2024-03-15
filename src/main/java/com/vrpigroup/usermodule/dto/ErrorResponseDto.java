@@ -10,12 +10,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Schema(name = "ErrorResponseDto", description = "Data Transfer Object for Error Response")
 public class ErrorResponseDto {
-    @Schema(name = "appPath", description = "Application Path", example = "/user", required = true)
+    @Schema(name = "appPath", description = "Application Path", example = "/user")
     private String appPath;
-    @Schema(name = "errorCode", description = "Error Code", example = "404", required = true)
+    @Schema(name = "errorCode", description = "Error Code", example = "404")
     private HttpStatus errorCode;
-    @Schema(name = "errorMessage", description = "Error Message", example = "User not found", required = true)
+    @Schema(name = "errorMessage", description = "Error Message", example = "User not found")
     private String errorMessage;
-    @Schema(name = "errorTime", description = "Error Time", example = "2021-12-12T12:12:12", required = true)
+    @Schema(name = "errorTime", description = "Error Time", example = "2021-12-12T12:12:12")
     private LocalDateTime errorTime;
 }

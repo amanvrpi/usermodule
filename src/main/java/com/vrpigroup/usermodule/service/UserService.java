@@ -64,7 +64,7 @@ public class UserService {
     }
 
     public UserDto createUser(UserDto userDto,MultipartFile profilePhoto,
-                              MultipartFile aadharFront,MultipartFile aadharBack) {
+                              MultipartFile aadharFront,MultipartFile aadharBack, MultipartFile incomeCert) {
             if (userModuleRepository.existsByEmail(userDto.getEmail())) {
                 logger.warn(" email already exists. Cannot create a new user.");
                 throw new UserAlreadyExistException(USER_WITH_USERNAME_OR_EMAIL_ALREADY_EXISTS+userDto.getEmail());
@@ -77,6 +77,9 @@ public class UserService {
                 if(isValid) {
                     if (profilePhoto != null && !profilePhoto.isEmpty()) {
                         user.setProfilePic(profilePhoto.getBytes());
+                    }
+                    if (profilePhoto != null && !profilePhoto.isEmpty()) {
+                        user.setIncomeCert(incomeCert.getBytes());
                     }
                     if (aadharFront != null && !aadharFront.isEmpty()) {
                         user.setAadharFront(aadharFront.getBytes());
@@ -199,7 +202,7 @@ public class UserService {
         return null;
     }
 
-    public Boolean updateUserDocuments(Long id, MultipartFile aadharFront, MultipartFile aadharBack, MultipartFile profilePic) {
+    public Boolean updateUserDocuments(Long id, MultipartFile aadharFront, MultipartFile aadharBack, MultipartFile profilePic, MultipartFile incomeCert) {
         Optional<UserEntity> optionalUser = userModuleRepository.findById(id);
 
         if (optionalUser.isPresent()) {
@@ -224,6 +227,13 @@ public class UserService {
                         user.setAadharBack(aadharBack.getBytes());
                     } else {
                         throw new IllegalArgumentException("Aadhar back must be in PDF format.");
+                    }
+                }
+                if (incomeCert != null && !incomeCert.isEmpty()) {
+                    if (isValidFileType(incomeCert, "pdf")) {
+                        user.setAadharBack(incomeCert.getBytes());
+                    } else {
+                        throw new IllegalArgumentException("incomeCert must be in PDF format.");
                     }
                 }
                 userModuleRepository.save(user);

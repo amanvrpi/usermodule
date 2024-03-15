@@ -33,7 +33,7 @@ public class EmailValidationServiceImpl implements EmailValidationService {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
         try {
-            var verifyLink = "http://localhost:8081/vrpi-user/verify-account/" + email + "/" + otp;
+            var verifyLink = "https://vrpitest.azurewebsites.net/vrpi-user/verify-account/" + email + "/" + otp;
             var htmlContent = """
                     <div>
                         <a href="%s" target="_blank">Click link to verify</a>

@@ -11,9 +11,6 @@ import java.util.List;
 
 @Data
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
-@Table(name = "Courses")
 public class CourseEntity {
 
     @Id
@@ -23,17 +20,27 @@ public class CourseEntity {
 
     @Schema(name = "Course Name", description = "Name of the Course", example = "Java Programming", required = true)
     private String courseName;
-
-    @Schema(name = "Description", description = "Description of the Course", example = "Learn Java programming from scratch", required = true)
     private String description;
-
-    @Schema(name = "Instructor", description = "Name of the Instructor", example = "John Doe", required = true)
-    private String instructor;
-
-    @Schema(name = "Duration", description = "Duration of the Course", example = "3 months", required = true)
+    private  String instructor;
     private String duration;
+    private String couseId;
+    // Other attributes and relationships...
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
-    private List<EnrollmentEntity> enrollments = new ArrayList<>();
+    // Constructor to initialize fixed courses
+    public CourseEntity(String courseName, String description, String instructor, String duration,String couseId) {
+        this.courseName = courseName;
+        this.description = description;
+        this.instructor = instructor;
+        this.duration = duration;
+        this.couseId=couseId;
+    }
 
+    // Define fixed courses as constants or enums
+    public static final CourseEntity JAVA_PROGRAMMING = new CourseEntity("Java Full-Stack", "Learn Java programming from scratch", "John Doe", "3 months","vpri001");
+    public static final CourseEntity DEVOPS = new CourseEntity("DevOps with Cloud", "Learn Python programming from scratch", "Jane Smith", "3 months","vpri002");
+    public static final CourseEntity AI = new CourseEntity("Artificial Intelligence", "Learn web development basics", "Mike Johnson", "2 months","vpri003");
+    public static final CourseEntity EMBEDED_IOT = new CourseEntity("Embedded & IoT", "Introduction to data science concepts", "Emily Brown", "4 months","vpri004");
+
+    public CourseEntity() {
+    }
 }

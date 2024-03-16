@@ -16,7 +16,7 @@ import java.util.Set;
 @Data
 @Schema(name = "UserDto", description = "Data Transfer Object for User")
 public class UserDto {
-
+    private  Long id;
     @Schema(description = "First Name", example = "Aman", required = true)
     @NotBlank(message = "First name cannot be blank")
     @Size(min = 3, max = 50, message = "First name must be between 3 and 50 characters")

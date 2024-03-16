@@ -1,15 +1,16 @@
 package com.vrpigroup.usermodule.service;
 import com.vrpigroup.usermodule.annotations.email.EmailValidation;
 import com.vrpigroup.usermodule.annotations.email.EmailValidationServiceImpl;
-import com.vrpigroup.usermodule.dto.UpdateUserDto;
-import com.vrpigroup.usermodule.dto.UserDocDto;
-import com.vrpigroup.usermodule.dto.UserDto;
+import com.vrpigroup.usermodule.constants.UserConstants;
+import com.vrpigroup.usermodule.dto.*;
 import com.vrpigroup.usermodule.entity.ContactUs;
+import com.vrpigroup.usermodule.entity.CourseEntity;
+import com.vrpigroup.usermodule.entity.EnrollmentEntity;
 import com.vrpigroup.usermodule.entity.UserEntity;
-import com.vrpigroup.usermodule.dto.LoginDto;
 import com.vrpigroup.usermodule.exception.UserAlreadyExistException;
 import com.vrpigroup.usermodule.mapper.UserMapper;
 import com.vrpigroup.usermodule.repo.ContactUsRepo;
+import com.vrpigroup.usermodule.repo.EnrollmentRepository;
 import com.vrpigroup.usermodule.repo.UserRepository;
 //import com.vrpigroup.usermodule.security.SecurityConfig;
 import jakarta.transaction.Transactional;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.vrpigroup.usermodule.constants.UserConstants.USER_WITH_USERNAME_OR_EMAIL_ALREADY_EXISTS;
 
@@ -38,6 +40,8 @@ public class UserService {
     private final EmailValidationServiceImpl emailValidationService;
     private final EmailValidation emailValidation;
     private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final EnrollmentRepository enrollmentRepository;
 
 
 
@@ -123,10 +127,23 @@ public class UserService {
     }
 
 
-    public UserEntity loginUser(LoginDto userModule) {
+    public UserDetailsDto loginUser(LoginDto userModule) {
         Optional<UserEntity> userByEmail = userModuleRepository.findByEmail(userModule.getEmail());
         if (userByEmail.isPresent() && verifyLogin(userByEmail.get(), userModule)) {
-            return userByEmail.get();
+//            when login success then data geting from db
+            UserEntity user = userByEmail.get();
+            List<EnrollmentEntity> enrollments = enrollmentRepository.findByUser(user);
+            List<EnrollCourseListDto> enrolledCourses = enrollments.stream()
+                    .map(enrollment -> {
+                        EnrollCourseListDto dto = new EnrollCourseListDto();
+                        dto.setId(enrollment.getCourse().getId());
+                        dto.setCouseId(enrollment.getCourse().getCouseId());
+                        dto.setCourseName(enrollment.getCourse().getCourseName());
+                        // Set any other fields as needed
+                        return dto;
+                    })
+                    .collect(Collectors.toList());
+            return new UserDetailsDto(UserMapper.userToUserDto(user,new UserDto()),enrolledCourses, UserConstants.HttpStatus_OK);
         }
         logger.warn("Unsuccessful login attempt for email: {}", userModule.getEmail());
 

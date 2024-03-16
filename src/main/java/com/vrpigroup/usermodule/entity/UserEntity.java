@@ -1,10 +1,8 @@
 package com.vrpigroup.usermodule.entity;
 
-import com.vrpigroup.usermodule.annotations.email.ValidEmail;
-import com.vrpigroup.usermodule.annotations.passwordAnnotation.Password;
-import com.vrpigroup.usermodule.annotations.phone.Phone;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -59,10 +57,11 @@ public class UserEntity {
 
     @Schema(name = "email", description = "Email Id", example = " ")
 //    @ValidEmail
+    @Email
     private String email;
 
     @Schema(name = "Create Password", description = "Password", example = "ABc@3214", required = true)
-    @Password
+
     private String createPassword;
 
     @Schema(name = "occupation", description = "Occupation", example = "Student", required = true)

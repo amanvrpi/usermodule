@@ -1,9 +1,11 @@
 package com.vrpigroup.usermodule.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.Date;
 
+@Data
 @Entity
 public class EnrollmentEntity {
 

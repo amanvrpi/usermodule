@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -114,30 +113,20 @@ public class UserController {
             summary = "Login User",
             description = "Login user")
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> loginUser(@Validated @RequestBody LoginDto loginDto) {
+    public ResponseEntity<UserDetailsDto> loginUser(@Validated @RequestBody LoginDto loginDto) {
+     UserDetailsDto user=null;
         try {
             log.info("UserController:loginUser - Attempting login for user: {}", loginDto.getEmail());
-            var user = userModuleService.loginUser(loginDto);
+             user = userModuleService.loginUser(loginDto);
             if (user != null) {
-                if (user.isActive()) {
-                    if (validateUserForLogin(user, loginDto)) {
-                        log.info("UserController:loginUser - Login successful for user: {}", user.getEmail());
-                        return ResponseEntity.status(HttpStatus.OK).body(new LoginResponseDto(user.getId(),UserConstants.HttpStatus_OK, UserConstants.LOGIN_SUCCESSFUL));
-                    } else {
-                        log.warn("UserController:loginUser - Invalid credentials for user: {}", user.getEmail());
-                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponseDto(UserConstants.UNAUTHORIZED_401, UserConstants.INVALID_CREDENTIALS));
-                    }
-                } else {
-                    log.warn("UserController:loginUser - Account not verified for user: {}", user.getEmail());
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponseDto(UserConstants.UNAUTHORIZED_401, UserConstants.FAILED_TO_VERIFY_ACCOUNT));
-                }
+                return new ResponseEntity<>(user,HttpStatus.OK);
             } else {
                 log.warn("UserController:loginUser - Invalid credentials for user");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponseDto(UserConstants.UNAUTHORIZED_401, UserConstants.INVALID_CREDENTIALS));
+                return new ResponseEntity<>(user,HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (Exception e) {
             log.error("UserController:loginUser - Error during login for user: {}", loginDto.getEmail(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new LoginResponseDto(UserConstants.INTERNAL_SERVER_ERROR_500, UserConstants.FAILED_TO_PROCEED_LOGIN));
+            return new ResponseEntity<>(user,HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -9,10 +9,11 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.Random;
+
 /**
  * @Author Aman Raj and Kanhaiya
  * @Description This class is used to convert UserDto to UserEntity and UserEntity to UserDto
- * */
+ */
 @Component
 public class UserMapper {
 
@@ -47,26 +48,27 @@ public class UserMapper {
         return String.valueOf(otp);
     }
 
-//    public UserDto userToUserDto(UserEntity userEntity, UserDto userDto) {
-//
-//        userDto.setName(userEntity.getName());
-//        userDto.setFathersName(userEntity.getFathersName());
-//        userDto.setUserName(userEntity.getUserName());
-//        userDto.setPassword(userEntity.getPassword());
-//        userDto.setAddress(userEntity.getAddress());
-//        userDto.setAadharCardNumber(userEntity.getAadharCardNumber());
-//        userDto.setActive(userEntity.isActive());
-//        userDto.setAadharCardNumber(userEntity.getAadharCardNumber());
-//        userDto.setPanCardNumber(userEntity.getPanCardNumber());
-//        userDto.setPhoneNumber(userEntity.getPhoneNumber());
-//        userDto.setPincode(userEntity.getPincode());
-//        userDto.setRoles(userEntity.getRoles());
-//        userDto.setOtp(userEntity.getOtp());
-//        userDto.setDateOfBirth(userEntity.getDateOfBirth());
-//        userDto.setEmail(userEntity.getEmail());
-//        return userDto;
-//    }
-
+    public static UserDto userToUserDto(UserEntity userEntity, UserDto userDto) {
+     if (userEntity.isActive()){
+         userDto.setId(userEntity.getId());
+         userDto.setFirstName(userEntity.getFirstName());
+         userDto.setLastName(userEntity.getLastName());
+         userDto.setFathersName(userEntity.getFathersName());
+         userDto.setGender(userEntity.getGender());
+         userDto.setDateOfBirth(userEntity.getDateOfBirth());
+         userDto.setPhoneNumber(userEntity.getPhoneNumber());
+         userDto.setAddress(userEntity.getAddress());
+         userDto.setEmail(userEntity.getEmail());
+         userDto.setCreatePassword(userEntity.getCreatePassword());
+         userDto.setOccupation(userEntity.getOccupation());
+         userDto.setAadharCardNumber(userEntity.getAadharCardNumber());
+         userDto.setRoles(userEntity.getRoles().toString());
+         return userDto;
+     }
+     else {
+         return null;
+     }
+    }
 
 
     public UpdateUserDto updateUserProfileAndDetails(UserEntity userEntity, UpdateUserDto updatedUser) {

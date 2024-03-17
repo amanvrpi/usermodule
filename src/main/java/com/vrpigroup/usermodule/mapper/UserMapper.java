@@ -1,7 +1,9 @@
 package com.vrpigroup.usermodule.mapper;
 
+import com.vrpigroup.usermodule.dto.EducationDetailsDto;
 import com.vrpigroup.usermodule.dto.UpdateUserDto;
 import com.vrpigroup.usermodule.dto.UserDto;
+import com.vrpigroup.usermodule.entity.EducationDetails;
 import com.vrpigroup.usermodule.entity.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -86,4 +88,18 @@ public class UserMapper {
         return updatedUser;
     }
 
+    public static EducationDetailsDto educationDetailsToEducationDetailsDto(EducationDetails educationDetails) {
+        EducationDetailsDto educationDetailsDto = new EducationDetailsDto();
+        educationDetailsDto.setEducationLevel(educationDetails.getEducationLevel());
+        educationDetailsDto.setDegree(educationDetails.getDegree());
+        educationDetailsDto.setInstitutionName(educationDetails.getInstitutionName());
+        educationDetailsDto.setInstituteLocation(educationDetails.getInstituteLocation());
+        educationDetailsDto.setStartDate(educationDetails.getStartDate());
+        educationDetailsDto.setEndDate(educationDetails.getEndDate());
+        educationDetailsDto.setGrade(educationDetails.getGrade());
+        educationDetailsDto.setUserId(educationDetails.getUser().getId());
+        educationDetailsDto.setCreatedAt(educationDetails.getCreatedAt());
+        educationDetailsDto.setUpdatedAt(educationDetails.getUpdatedAt());
+        return educationDetailsDto;
+    }
 }

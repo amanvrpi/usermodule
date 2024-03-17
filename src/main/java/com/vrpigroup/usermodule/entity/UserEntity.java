@@ -98,4 +98,5 @@ public class UserEntity {
     public boolean active;
 
     private String otp;
+
 }

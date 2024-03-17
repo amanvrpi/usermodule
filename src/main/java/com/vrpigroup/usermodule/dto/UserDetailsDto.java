@@ -15,12 +15,15 @@ import java.util.List;
 
 public class UserDetailsDto {
 
-//    user entity data
-private UserDto userDto;
-//    courses data from course entity
-List<EnrollCourseListDto> courseList;
+    //    user entity data
+    private UserDto userDto;
+    //    courses data from course entity
+    List<EnrollCourseListDto> courseList;
+//    getting data from eduation Entity
+    private EducationDetailsDto educationDetails;
+
+
     private String statusMessage;
 
-    public UserDetailsDto(UserDto userDto, List<CourseEntity> enrolledCourses) {
-    }
+
 }

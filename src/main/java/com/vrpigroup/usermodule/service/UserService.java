@@ -3,13 +3,11 @@ import com.vrpigroup.usermodule.annotations.email.EmailValidation;
 import com.vrpigroup.usermodule.annotations.email.EmailValidationServiceImpl;
 import com.vrpigroup.usermodule.constants.UserConstants;
 import com.vrpigroup.usermodule.dto.*;
-import com.vrpigroup.usermodule.entity.ContactUs;
-import com.vrpigroup.usermodule.entity.CourseEntity;
-import com.vrpigroup.usermodule.entity.EnrollmentEntity;
-import com.vrpigroup.usermodule.entity.UserEntity;
+import com.vrpigroup.usermodule.entity.*;
 import com.vrpigroup.usermodule.exception.UserAlreadyExistException;
 import com.vrpigroup.usermodule.mapper.UserMapper;
 import com.vrpigroup.usermodule.repo.ContactUsRepo;
+import com.vrpigroup.usermodule.repo.EducationDetailsRepo;
 import com.vrpigroup.usermodule.repo.EnrollmentRepository;
 import com.vrpigroup.usermodule.repo.UserRepository;
 //import com.vrpigroup.usermodule.security.SecurityConfig;
@@ -42,6 +40,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final EnrollmentRepository enrollmentRepository;
+    private  final EducationDetailsRepo educationDetailsRepo;
 
 
 
@@ -143,7 +142,9 @@ public class UserService {
                         return dto;
                     })
                     .collect(Collectors.toList());
-            return new UserDetailsDto(UserMapper.userToUserDto(user,new UserDto()),enrolledCourses, UserConstants.HttpStatus_OK);
+            Optional<EducationDetails> educationDetails=educationDetailsRepo.findById(user.getId());
+
+            return new UserDetailsDto(UserMapper.userToUserDto(user,new UserDto()),enrolledCourses,UserMapper.educationDetailsToEducationDetailsDto(educationDetails.get()), UserConstants.HttpStatus_OK);
         }
         logger.warn("Unsuccessful login attempt for email: {}", userModule.getEmail());
 

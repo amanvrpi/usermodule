@@ -11,3 +11,5 @@
 
 # Java compiled bytecode
 *.class
+# GitHub Copilot persisted chat sessions
+/copilot/chatSessions

@@ -2,13 +2,8 @@ package com.vrpigroup.usermodule.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
-import org.hibernate.annotations.Type;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +13,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "Users")
+@Table(name = "UserDetail")
 public class UserEntity {
 
     @Id
@@ -56,7 +51,6 @@ public class UserEntity {
 
 
     @Schema(name = "email", description = "Email Id", example = " ")
-//    @ValidEmail
     @Email
     private String email;
 
@@ -68,7 +62,6 @@ public class UserEntity {
     private String occupation;
 
     @Schema(name = "aadharCardNumber", description = "Aadhar Card Number", example = "123456789012")
-//    @Pattern(regexp = "\\d{12}", message = "Invalid Aadhar card format")
     private String aadharCardNumber;
 
 
@@ -91,6 +84,7 @@ public class UserEntity {
     @Column(length = 5000000)
     @Schema(name = "incomeCert", description = "incomeCert", example = "incomeCert.jpg")
     private byte[] incomeCert;
+
     @Schema(name = "role", description = "Roles", example = "USER")
     @ElementCollection
     private List<String> roles = new ArrayList<>();

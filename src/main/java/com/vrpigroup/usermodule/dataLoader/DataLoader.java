@@ -11,7 +11,6 @@ import com.vrpigroup.usermodule.repo.CourseRepository;
 import com.vrpigroup.usermodule.repo.EnrollmentRepository;
 import com.vrpigroup.usermodule.repo.UserRepository;
 import jakarta.persistence.EntityManager;
-
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Date;
@@ -36,9 +35,10 @@ public class DataLoader implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
-        userRepository.deleteAll();
+        /*userRepository.deleteAll();
         courseRepository.deleteAll();
-        enrollmentRepository.deleteAll();
+        // Since EnrollmentEntity references UserEntity, delete all enrollments first
+        enrollmentRepository.deleteAll();*/
 
         List<UserEntity> users = generateUniqueUsers();
         List<CourseEntity> courses = Arrays.asList(CourseEntity.JAVA_PROGRAMMING, CourseEntity.DEVOPS, CourseEntity.AI, CourseEntity.EMBEDED_IOT);
@@ -56,7 +56,6 @@ public class DataLoader implements ApplicationRunner {
         return IntStream.range(0, 10)
                 .mapToObj(i -> {
                     UserEntity userEntity = new UserEntity();
-                    userEntity.setId((long) (i + 1));
                     userEntity.setFirstName(firstNames.get(i));
                     userEntity.setLastName(lastNames.get(i));
                     userEntity.setFathersName("Father" + (i + 1) + " " + lastNames.get(i));

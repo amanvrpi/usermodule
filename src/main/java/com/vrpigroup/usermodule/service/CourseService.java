@@ -1,5 +1,6 @@
 package com.vrpigroup.usermodule.service;
 
+import com.vrpigroup.usermodule.entity.PaymentDetailsRequest;
 import com.vrpigroup.usermodule.exception.CourseNotActiveException;
 import com.vrpigroup.usermodule.annotations.email.EmailValidationServiceImpl;
 import com.vrpigroup.usermodule.entity.CourseEntity;
@@ -11,11 +12,12 @@ import com.vrpigroup.usermodule.repo.PaymentDetailsRequestRepo;
 import com.vrpigroup.usermodule.repo.UserCourseAssociationRepo;
 import com.vrpigroup.usermodule.repo.UserRepository;
 import org.springframework.http.*;
+import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.util.Optional;
-
+@Component
 public class CourseService {
 
     private final UserCourseAssociationRepo userCourseAssociationRepo;

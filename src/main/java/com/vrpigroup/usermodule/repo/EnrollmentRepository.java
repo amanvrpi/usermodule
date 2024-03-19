@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface EnrollmentRepository extends JpaRepository<EnrollmentEntity,Long> {
-    List<EnrollmentEntity> findByUser(UserEntity user);
+    List<EnrollmentEntity> findByUser(UserEntity id);
 }

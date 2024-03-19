@@ -7,7 +7,7 @@ import com.vrpigroup.usermodule.service.CourseService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
-
+@RestController
 public class EnrollController {
 
     private final CourseService courseService;
@@ -41,7 +41,7 @@ public class EnrollController {
         return courseService.getAllCourses().toString();
     }
 
-    @PostMapping("/enroll-course/{courseId}/{userId}")
+    @GetMapping("/enroll-course/{courseId}/{userId}")
     public String enrollCourse(@RequestParam Long courseId, @RequestParam Long userId) throws
             CourseNotActiveException, CourseNotFoundException {
         return String.valueOf(courseService.enrollUserForCourse(courseId, userId));

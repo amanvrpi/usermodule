@@ -128,8 +128,9 @@ public class UserService {
 
     public UserDetailsDto loginUser(LoginDto userModule) {
         Optional<UserEntity> userByEmail = userModuleRepository.findByEmail(userModule.getEmail());
+        System.out.println(userByEmail.get());
         if (userByEmail.isPresent() && verifyLogin(userByEmail.get(), userModule)) {
-//            when login success then data geting from db
+//            when login success then data getting from db
             UserEntity user = userByEmail.get();
             List<EnrollmentEntity> enrollments = enrollmentRepository.findByUser(user);
             List<EnrollCourseListDto> enrolledCourses = enrollments.stream()
@@ -142,9 +143,13 @@ public class UserService {
                         return dto;
                     })
                     .collect(Collectors.toList());
-            Optional<EducationDetails> educationDetails=educationDetailsRepo.findById(user.getId());
-
-            return new UserDetailsDto(UserMapper.userToUserDto(user,new UserDto()),enrolledCourses,UserMapper.educationDetailsToEducationDetailsDto(educationDetails.get()), UserConstants.HttpStatus_OK);
+            Optional<EducationDetails> educationDetails = educationDetailsRepo.findById(user.getId());
+            return educationDetails.map(details -> new UserDetailsDto(UserMapper.userToUserDto(user, new UserDto()), enrolledCourses,
+                    UserMapper.educationDetailsToEducationDetailsDto(details), UserConstants.HttpStatus_OK)).orElseGet(() ->
+                    new UserDetailsDto(UserMapper.userToUserDto(user, new UserDto()), enrolledCourses,
+                    UserMapper.educationDetailsToEducationDetailsDto(educationDetails.get()), UserConstants.HttpStatus_OK));
+            /*return new UserDetailsDto(UserMapper.userToUserDto(user,new UserDto()),enrolledCourses,
+                    UserMapper.educationDetailsToEducationDetailsDto(educationDetails.get()), UserConstants.HttpStatus_OK);*/
         }
         logger.warn("Unsuccessful login attempt for email: {}", userModule.getEmail());
 

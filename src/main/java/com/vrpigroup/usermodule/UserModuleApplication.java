@@ -1,5 +1,6 @@
 package com.vrpigroup.usermodule;
 
+import com.razorpay.RazorpayClient;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Contact;
@@ -8,7 +9,9 @@ import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 @OpenAPIDefinition(
@@ -44,6 +47,21 @@ license = @License(
 
 @EnableJpaRepositories
 public class UserModuleApplication {
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
+    @Bean
+    public RazorpayClient razorpayClient() {
+        try {
+            return new RazorpayClient("rzp_test_1DP5mmOlF5G5aa", "XVbFb4j1fYx8Zt6Zb1fYx8Zt6");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(UserModuleApplication.class, args);

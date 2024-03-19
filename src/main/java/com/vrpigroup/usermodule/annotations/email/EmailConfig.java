@@ -10,14 +10,15 @@ import java.util.Properties;
 
 @Configuration
 public class EmailConfig {
-    @Value("${spring.mail.host}")
-    private String mailHost;
-    @Value("${spring.mail.port}")
-    private String mailPort;
-    @Value("${spring.mail.username}")
-    private String mailUsername;
-    @Value("${spring.mail.password}")
-    private String mailPassword;
+
+    //@Value("${spring.mail.host}")
+    private String mailHost = "smtp.gmail.com";
+    //@Value("${spring.mail.port}")
+    private String mailPort = "587";
+    //@Value("${spring.mail.username}")
+    private String mailUsername = "amanrashm@gmail.com";
+    //@Value("${spring.mail.password}")
+    private String mailPassword = "cchgrrsdnchmraxc";
 
     @Bean
     public JavaMailSender getJavaMailSender() {

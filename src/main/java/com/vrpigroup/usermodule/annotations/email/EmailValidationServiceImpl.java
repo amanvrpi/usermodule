@@ -54,11 +54,34 @@ public class EmailValidationServiceImpl implements EmailValidationService {
 
     }
 
-    public void sendConformationMail(String email) {
+    /*public void sendConformationMail(String email) {
         var message = new SimpleMailMessage();
         message.setTo(email);
         message.setSubject("Account Created");
         message.setText("Your account has been created successfully");
         javaMailSender.send(message);
+    }*/
+
+    //confirmation email after buying course
+    public void sendConformationMail(String email, String courseName) {
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+        try {
+            var htmlContent = """
+                    <div>
+                        <p>Thank you for purchasing %s course.</p>
+                        <p>Our HR team will contact you soon.</p>
+                    </div>
+                    """.formatted(courseName);
+            helper.setFrom("support@vrpigroup.com", "VRPI Group");
+            helper.setTo(email);
+            helper.setCc("amanraj@vrpigroup.com");
+            helper.setSubject("Course Purchased Successfully");
+            helper.setText(htmlContent, true);
+            helper.setSentDate(new Date());
+            javaMailSender.send(mimeMessage);
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 }

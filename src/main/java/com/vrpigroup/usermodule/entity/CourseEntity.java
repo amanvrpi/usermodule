@@ -24,6 +24,8 @@ public class CourseEntity {
     private  String instructor;
     private String duration;
     private String couseId;
+    private Boolean active;
+    private Long price;
     // Other attributes and relationships...
 
     // Constructor to initialize fixed courses

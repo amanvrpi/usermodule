@@ -107,7 +107,7 @@ public class UserService {
 
 
 
-    public UserEntity updateUser(Long id, UserEntity updatedUserModule) {
+    /*public UserEntity updateUser(Long id, UserEntity updatedUserModule) {
         if (userModuleRepository.existsById(id)) {
             updatedUserModule.setId(id);
             return userModuleRepository.save(updatedUserModule);
@@ -115,7 +115,7 @@ public class UserService {
             logger.warn("Failed to update user. User not found for ID: {}", id);
             return null;
         }
-    }
+    }*/
 
     public void deleteUser(Long id) {
         try {
@@ -220,7 +220,6 @@ public class UserService {
 
     public Boolean updateUserDocuments(Long id, MultipartFile aadharFront, MultipartFile aadharBack, MultipartFile profilePic, MultipartFile incomeCert) {
         Optional<UserEntity> optionalUser = userModuleRepository.findById(id);
-
         if (optionalUser.isPresent()) {
             UserEntity user = optionalUser.get();
             try {

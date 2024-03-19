@@ -128,11 +128,17 @@ public class UserService {
 
     public UserDetailsDto loginUser(LoginDto userModule) {
         Optional<UserEntity> userByEmail = userModuleRepository.findByEmail(userModule.getEmail());
-        System.out.println(userByEmail.get());
         if (userByEmail.isPresent() && verifyLogin(userByEmail.get(), userModule)) {
-//            when login success then data getting from db
             UserEntity user = userByEmail.get();
-            List<EnrollmentEntity> enrollments = enrollmentRepository.findByUser(user);
+            Long userId = user.getId(); // Obtain the user ID
+
+            // Fetch education details
+            Optional<EducationDetails> educationDetails = educationDetailsRepo.findById(userId);
+
+            // Fetch enrollments based on the user ID dynamically
+            List<EnrollmentEntity> enrollments = enrollmentRepository.findByUserId(userId);
+
+            // Map enrollments to DTOs
             List<EnrollCourseListDto> enrolledCourses = enrollments.stream()
                     .map(enrollment -> {
                         EnrollCourseListDto dto = new EnrollCourseListDto();
@@ -143,18 +149,32 @@ public class UserService {
                         return dto;
                     })
                     .collect(Collectors.toList());
-            Optional<EducationDetails> educationDetails = educationDetailsRepo.findById(user.getId());
-            return educationDetails.map(details -> new UserDetailsDto(UserMapper.userToUserDto(user, new UserDto()), enrolledCourses,
-                    UserMapper.educationDetailsToEducationDetailsDto(details), UserConstants.HttpStatus_OK)).orElseGet(() ->
-                    new UserDetailsDto(UserMapper.userToUserDto(user, new UserDto()), enrolledCourses,
-                    UserMapper.educationDetailsToEducationDetailsDto(educationDetails.get()), UserConstants.HttpStatus_OK));
-            /*return new UserDetailsDto(UserMapper.userToUserDto(user,new UserDto()),enrolledCourses,
-                    UserMapper.educationDetailsToEducationDetailsDto(educationDetails.get()), UserConstants.HttpStatus_OK);*/
+
+            // Create UserDetailsDto based on fetched data
+            UserDetailsDto userDetailsDto;
+            if (educationDetails.isPresent()) {
+                userDetailsDto = new UserDetailsDto(
+                        UserMapper.userToUserDto(user, new UserDto()),
+                        enrolledCourses,
+                        UserMapper.educationDetailsToEducationDetailsDto(educationDetails.get()),
+                        UserConstants.HttpStatus_OK
+                );
+            } else {
+                userDetailsDto = new UserDetailsDto(
+                        UserMapper.userToUserDto(user, new UserDto()),
+                        enrolledCourses,
+                        null, // No education details available
+                        UserConstants.HttpStatus_OK
+                );
+            }
+            return userDetailsDto;
         }
         logger.warn("Unsuccessful login attempt for email: {}", userModule.getEmail());
 
         return null;
     }
+
+
     private boolean verifyLogin(UserEntity user, LoginDto userModule) {
         if ( user.isActive()
                 && passwordEncoder.matches(userModule.getPassword(), user.getCreatePassword())) {

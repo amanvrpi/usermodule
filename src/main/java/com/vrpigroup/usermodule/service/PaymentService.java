@@ -147,7 +147,7 @@ public class PaymentService {
         notify.put("email", true);
         paymentLinkRequest.put("notify", notify);
         paymentLinkRequest.put("reminder_enable", true);
-        paymentLinkRequest.put("callback_url", "http://localhost:8081/payment-vrpi/payments?course_id=" + courseId);
+        paymentLinkRequest.put("callback_url", "http://localhost:8082/payment-vrpi/payments?course_id=" + courseId);
         paymentLinkRequest.put("callback_method", "get");
         return paymentLinkRequest;
     }

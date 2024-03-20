@@ -2,6 +2,7 @@ package com.vrpigroup.usermodule.dataLoader;
 
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import com.vrpigroup.usermodule.entity.CourseEntity;
@@ -21,15 +22,17 @@ import java.util.stream.IntStream;
 @Component
 public class DataLoader implements ApplicationRunner {
     private final UserRepository userRepository;
+    private PasswordEncoder passwordEncoder;
     private final CourseRepository courseRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final EntityManager entityManager;
 
-    public DataLoader(UserRepository userRepository, CourseRepository courseRepository, EnrollmentRepository enrollmentRepository, EntityManager entityManager) {
+    public DataLoader(UserRepository userRepository, CourseRepository courseRepository, EnrollmentRepository enrollmentRepository, EntityManager entityManager,PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.courseRepository = courseRepository;
         this.enrollmentRepository = enrollmentRepository;
         this.entityManager = entityManager;
+        this.passwordEncoder= passwordEncoder;
     }
 
     @Override
@@ -64,7 +67,7 @@ public class DataLoader implements ApplicationRunner {
                     userEntity.setPhoneNumber("123456789" + (i + 1));
                     userEntity.setAddress("Address" + (i + 1) + ", City" + (i + 1));
                     userEntity.setEmail("user" + (i + 1) + "@example.com");
-                    userEntity.setCreatePassword("Pass" + (i + 1) + "@word");
+                    userEntity.setCreatePassword(passwordEncoder.encode("Pass" + (i + 1) + "@word"));
                     userEntity.setOccupation(i % 2 == 0 ? "Professional" : "Student");
                     userEntity.setAadharCardNumber("01234567890" + (i + 1));
                     userEntity.setAadharFront(("aadhar_front" + (i + 1) + ".jpg").getBytes());

@@ -64,7 +64,8 @@ public class CourseService {
 
     public Boolean enrollUserForCourse(Long courseId, Long userId) throws CourseNotFoundException, CourseNotActiveException {
         validateEnrollmentParameters(courseId, userId);
-        CourseEntity course = getCachedCourseById(courseId);
+        CourseEntity course = courseRepository.findById(courseId).orElseThrow(null);
+        System.out.println(course.getCourseName());
         validateCourse(course, courseId);
         validateActiveCourse(course);
         ResponseEntity<Boolean> paymentResponse = initiatePayment(userId, courseId);

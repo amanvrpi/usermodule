@@ -41,7 +41,7 @@ public class EnrollController {
         return courseService.getAllCourses().toString();
     }
 
-    @GetMapping("/enroll-course/{courseId}/{userId}")
+    @PostMapping ("/enroll-course")
     public String enrollCourse(@RequestParam Long courseId, @RequestParam Long userId) throws
             CourseNotActiveException, CourseNotFoundException {
         return String.valueOf(courseService.enrollUserForCourse(courseId, userId));

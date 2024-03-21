@@ -143,7 +143,7 @@ public class UserService {
                     .map(enrollment -> {
                         EnrollCourseListDto dto = new EnrollCourseListDto();
                         dto.setId(enrollment.getCourse().getId());
-                        dto.setCouseId(enrollment.getCourse().getCouseId());
+                        dto.setCourseId(enrollment.getCourse().getLabel());
                         dto.setCourseName(enrollment.getCourse().getCourseName());
                         // Set any other fields as needed
                         return dto;

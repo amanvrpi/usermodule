@@ -22,15 +22,20 @@ public class PaymentService {
     
     private final PaymentDetailsRequestRepo paymentDetailsRequestRepo;
     //@Value("${razorpay.api.key}")
-    private final String apiKey = "rzp_test_Y2wKKNPVZruuwe";
+    private final String apiKey = "rzp_test_HDibd0r72mDwz5";
 
     //@Value("${razorpay.api.secret}")
-    private final String apiSecret = "H1GUDvfwvsIeiCJrzcbQLbb1";
+    private final String apiSecret = "AIs9tgYbPT4quUHU8VfMPcGy";
 
-    public PaymentService(RazorpayClient razorpay, CourseRepository courseRepository, PaymentDetailsRequestRepo paymentDetailsRequestRepo) {
-        this.razorpay = razorpay;
+    public PaymentService( CourseRepository courseRepository, PaymentDetailsRequestRepo paymentDetailsRequestRepo) {
+        try {
+            this.razorpay = new RazorpayClient(apiKey, apiSecret);
+        } catch (RazorpayException e) {
+            throw new RuntimeException("Failed to initialize Razorpay client", e);
+        }
         this.courseRepository = courseRepository;
         this.paymentDetailsRequestRepo = paymentDetailsRequestRepo;
+
     }
 
     public ResponseEntity<PaymentLinkResponse> createPaymentLink(
@@ -46,7 +51,7 @@ public class PaymentService {
             int coursePrice = Math.toIntExact(getCoursePrice(courseId));
             if (coursePrice != 0) {
                 JSONObject paymentLinkRequest = createPaymentLinkRequest(coursePrice, firstName, lastName, mobile, email, courseId);
-                PaymentLink payment = razorpay.paymentLink.create(paymentLinkRequest);
+                 PaymentLink payment = razorpay.paymentLink.create(paymentLinkRequest);
                 String paymentLinkId = payment.get("id");
                 String paymentLinkUrl = payment.get("short_url");
                 System.out.println("Payment link created: " + paymentLinkUrl);

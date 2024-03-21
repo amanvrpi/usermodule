@@ -62,17 +62,19 @@ public class CourseService {
                 () -> new RuntimeException("Courses not found"));
     }
 
-    public Boolean enrollUserForCourse(Long courseId, Long userId) throws CourseNotFoundException, CourseNotActiveException {
+    public Object enrollUserForCourse(Long courseId, Long userId) throws CourseNotFoundException, CourseNotActiveException {
         validateEnrollmentParameters(courseId, userId);
+//        fetching course from db
         CourseEntity course = courseRepository.findById(courseId).orElseThrow(null);
         System.out.println(course.getCourseName());
+//        calling validateCourse method to check if course is present
         validateCourse(course, courseId);
         validateActiveCourse(course);
-        ResponseEntity<Boolean> paymentResponse = initiatePayment(userId, courseId);
+        ResponseEntity<?> paymentResponse = initiatePayment(userId, courseId);
         if (paymentResponse.getStatusCode() == HttpStatus.OK) {
             enrollUser(userId, courseId);
             sendConfirmationEmail(userId, courseId);
-            return true;
+            return paymentResponse;
         } else {
             throw new RuntimeException("Error initiating payment");
         }
@@ -91,7 +93,7 @@ public class CourseService {
         userCourseAssociationRepo.save(userCourseAssociation);
     }
 
-    private ResponseEntity<Boolean> initiatePayment(Long userId, Long courseId) {
+    private ResponseEntity<?> initiatePayment(Long userId, Long courseId) {
         MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
         UserEntity user = getUserDetails(userId);
         map.add("userId", userId);
@@ -101,10 +103,10 @@ public class CourseService {
         map.add("email", user.getEmail());
         map.add("mobile", user.getPhoneNumber());
         var orderId = generateRandomOrderId(userId, courseId);
-        paymentService.createPaymentLink(Long.valueOf(orderId),
+       return paymentService.createPaymentLink(Long.valueOf(orderId),
                 userId, courseId, user.getFirstName(),
                 user.getLastName(), user.getPhoneNumber(), user.getEmail());
-        return new ResponseEntity<>(true, HttpStatus.OK);
+//        return new ResponseEntity<>(true, HttpStatus.OK);
     }
 
     private UserEntity getUserDetails(Long userId) {

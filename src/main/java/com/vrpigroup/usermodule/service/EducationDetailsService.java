@@ -6,10 +6,14 @@ import com.vrpigroup.usermodule.repo.EducationDetailsRepo;
 import com.vrpigroup.usermodule.repo.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
+@Log4j2
 public class EducationDetailsService {
 
     private final EducationDetailsRepo educationDetailsRepo;
@@ -21,24 +25,29 @@ public class EducationDetailsService {
 
     @Transactional
     public String saveEducationDetails(EducationDetails educationDetails, Long userId) {
-        try {
-            // Retrieve the user entity
-            UserEntity user = userModuleRepository.findById(userId)
-                    .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
+        if (educationDetails == null || userId == null) {
+            return "Invalid input parameters";
+        }
 
-            // Set the user for education details
+        try {
+            Optional<UserEntity> optionalUser = userModuleRepository.findById(userId);
+            if (optionalUser.isEmpty()) {
+                return "User not found with ID: " + userId;
+            }
+
+            UserEntity user = optionalUser.get();
             educationDetails.setUser(user);
 
-            // Save education details
             educationDetailsRepo.save(educationDetails);
 
             return "Data saved successfully";
-        } catch (EntityNotFoundException e) {
-            return "User not found with ID: " + userId;
         } catch (DataIntegrityViolationException e) {
             return "Data integrity violation: " + e.getMessage();
         } catch (Exception e) {
-            return "Something went wrong while saving data: " + e.getMessage();
+            // Log the exception
+            log.error("Error while saving education details", e);
+            return "Something went wrong while saving data";
         }
     }
+
 }

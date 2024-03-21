@@ -4,6 +4,8 @@ import com.vrpigroup.usermodule.exception.CourseNotActiveException;
 import com.vrpigroup.usermodule.entity.CourseEntity;
 import com.vrpigroup.usermodule.exception.CourseNotFoundException;
 import com.vrpigroup.usermodule.service.CourseService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -42,8 +44,9 @@ public class EnrollController {
     }
 
     @PostMapping ("/enroll-course")
-    public String enrollCourse(@RequestParam Long courseId, @RequestParam Long userId) throws
+    public ResponseEntity<?> enrollCourse(@RequestParam Long courseId, @RequestParam Long userId) throws
             CourseNotActiveException, CourseNotFoundException {
-        return String.valueOf(courseService.enrollUserForCourse(courseId, userId));
+//        return String.valueOf(courseService.enrollUserForCourse(courseId, userId));
+        return new ResponseEntity<>(courseService.enrollUserForCourse(courseId, userId), HttpStatus.OK);
     }
 }

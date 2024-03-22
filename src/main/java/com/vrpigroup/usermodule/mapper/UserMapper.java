@@ -90,14 +90,14 @@ public class UserMapper {
 
     public static EducationDetailsDto educationDetailsToEducationDetailsDto(EducationDetails educationDetails) {
         EducationDetailsDto educationDetailsDto = new EducationDetailsDto();
+        educationDetailsDto.setId(educationDetails.getId());
         educationDetailsDto.setEducationLevel(educationDetails.getEducationLevel());
         educationDetailsDto.setDegree(educationDetails.getDegree());
         educationDetailsDto.setInstitutionName(educationDetails.getInstitutionName());
         educationDetailsDto.setInstituteLocation(educationDetails.getInstituteLocation());
-        educationDetailsDto.setStartDate(educationDetails.getStartDate());
-        educationDetailsDto.setEndDate(educationDetails.getEndDate());
-        educationDetailsDto.setGrade(educationDetails.getGrade());
-        educationDetailsDto.setUserId(educationDetails.getUser().getId());
+        educationDetailsDto.setStartYear(educationDetails.getStartYear());
+        educationDetailsDto.setEndYear(educationDetails.getEndYear());
+        educationDetailsDto.setPercentageOrCgpa(educationDetails.getPercentageOrCgpa());
         educationDetailsDto.setCreatedAt(educationDetails.getCreatedAt());
         educationDetailsDto.setUpdatedAt(educationDetails.getUpdatedAt());
         return educationDetailsDto;

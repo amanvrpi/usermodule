@@ -70,13 +70,12 @@ public class EducationDetails {
     @JoinColumn(name = "user_id", referencedColumnName = "User_ID", unique = true)
     private UserEntity user;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", updatable = false)
     @CreatedDate
-    @Schema(description = "Creation timestamp", example = "2022-03-20T12:00:00")
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", insertable = false)
     @LastModifiedDate
-    @Schema(description = "Last update timestamp", example = "2022-03-20T13:30:00")
     private LocalDateTime updatedAt;
+
 }

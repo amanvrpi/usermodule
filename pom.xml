@@ -68,7 +68,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-<!--            <version>8.0.27</version> &lt;!&ndash; Use the latest version available &ndash;&gt;-->
+           <version>8.0.27</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

@@ -12,7 +12,7 @@
 //@Component
 //public class JwtTokenFilter {
 //
-//    /*private final JwtTokenProvider jwtTokenProvider;
+//    private final JwtTokenProvider jwtTokenProvider;
 //
 //    public JwtTokenFilter(JwtTokenProvider jwtTokenProvider) {
 //        this.jwtTokenProvider = jwtTokenProvider;
@@ -23,5 +23,5 @@
 //        JwtTokenProvider.validateToken((HttpServletRequest) req);
 //        filterChain.doFilter(req, res);
 //
-//    }*/
+//    }
 //}

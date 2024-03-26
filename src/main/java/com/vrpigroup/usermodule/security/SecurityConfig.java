@@ -1,14 +1,14 @@
-package com.vrpigroup.usermodule.security;
+//package com.vrpigroup.usermodule.security;
 //
 //import com.vrpigroup.usermodule.service.CustomUserDetailsService;
 //import com.vrpigroup.usermodule.service.UserService;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
+//import org.springframework.context.annotation.Bean;
+//import org.springframework.context.annotation.Configuration;
+//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+//import org.springframework.security.crypto.password.PasswordEncoder;
+//
 //import org.springframework.context.annotation.Lazy;
 //import org.springframework.http.HttpMethod;
 //import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,16 +23,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 //
 //import static org.springframework.security.config.Customizer.withDefaults;
 //
-@Configuration
-public class SecurityConfig {
+//@Configuration
+//public class SecurityConfig {
 //
-//    /*private final UserService userService;
+//    private final UserService userService;
 //    private final CustomUserDetailsService customUserDetailsService;
 //
 //    public SecurityConfig(@Lazy UserService userService, CustomUserDetailsService customUserDetailsService) {
 //        this.userService = userService;
 //        this.customUserDetailsService = customUserDetailsService;
-//    }*/
+//    }
 //
 //    @Bean
 //    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -59,10 +59,10 @@ public class SecurityConfig {
 //        return http.build();
 //    }
 //
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
+//    @Bean
+//    public PasswordEncoder passwordEncoder(){
+//        return new BCryptPasswordEncoder();
+//    }
 //
 //    @Bean
 //    public UserDetailsService userDetailsService() {
@@ -86,4 +86,4 @@ public class SecurityConfig {
 //    public JwtTokenFilter jwtTokenFilter() {
 //        return new JwtTokenFilter(jwtTokenProvider());
 //    }*/
-}
+//}

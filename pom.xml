@@ -11,7 +11,7 @@
     <groupId>com.vrpigroup</groupId>
     <artifactId>usermodule</artifactId>
     <version>v1</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <name>usermodule</name>
     <description>Edutech usermodule</description>
     <properties>

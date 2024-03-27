@@ -133,7 +133,7 @@ public class UserService {
             Long userId = user.getId(); // Obtain the user ID
 
             // Fetch education details
-            Optional<EducationDetails> educationDetails = educationDetailsRepo.findById(userId);
+            Optional<EducationDetails> educationDetails = educationDetailsRepo.findByUserId(userId);
 
             // Fetch enrollments based on the user ID dynamically
             List<EnrollmentEntity> enrollments = enrollmentRepository.findByUserId(userId);
@@ -152,21 +152,17 @@ public class UserService {
 
             // Create UserDetailsDto based on fetched data
             UserDetailsDto userDetailsDto;
-            if (educationDetails.isPresent()) {
-                userDetailsDto = new UserDetailsDto(
-                        UserMapper.userToUserDto(user, new UserDto()),
-                        enrolledCourses,
-                        UserMapper.educationDetailsToEducationDetailsDto(educationDetails.get()),
-                        UserConstants.HttpStatus_OK
-                );
-            } else {
-                userDetailsDto = new UserDetailsDto(
-                        UserMapper.userToUserDto(user, new UserDto()),
-                        enrolledCourses,
-                        null, // No education details available
-                        UserConstants.HttpStatus_OK
-                );
-            }
+            userDetailsDto = educationDetails.map(details -> new UserDetailsDto(
+                    UserMapper.userToUserDto(user, new UserDto()),
+                    enrolledCourses,
+                    UserMapper.educationDetailsToEducationDetailsDto(details),
+                    UserConstants.HttpStatus_OK
+            )).orElseGet(() -> new UserDetailsDto(
+                    UserMapper.userToUserDto(user, new UserDto()),
+                    enrolledCourses,
+                    null, // No education details available
+                    UserConstants.HttpStatus_OK
+            ));
             return userDetailsDto;
         }
         logger.warn("Unsuccessful login attempt for email: {}", userModule.getEmail());

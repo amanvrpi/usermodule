@@ -65,9 +65,9 @@ public class EducationDetails {
     @Schema(description = "Grade obtained", example = "A+")
     private String grade;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "User_ID", unique = true)
-    private UserEntity user;
+    @Column(name = "user_id", nullable = false)
+    @Schema(description = "ID of the associated user", example = "1")
+    private Long userId;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreatedDate

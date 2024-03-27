@@ -25,7 +25,7 @@ public class EducationDetailsService {
             // Retrieve the user entity
             UserEntity user = userModuleRepository.findById(userId)
                     .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
-            educationDetails.setUser(user);
+            educationDetails.setUserId(userId);
             educationDetailsRepo.save(educationDetails);
             return "Data saved successfully";
         } catch (EntityNotFoundException e) {

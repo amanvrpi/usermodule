@@ -97,7 +97,7 @@ public class UserMapper {
         educationDetailsDto.setStartDate(educationDetails.getStartDate());
         educationDetailsDto.setEndDate(educationDetails.getEndDate());
         educationDetailsDto.setGrade(educationDetails.getGrade());
-        educationDetailsDto.setUserId(educationDetails.getUser().getId());
+        educationDetailsDto.setUserId(educationDetails.getUserId());
         educationDetailsDto.setCreatedAt(educationDetails.getCreatedAt());
         educationDetailsDto.setUpdatedAt(educationDetails.getUpdatedAt());
         return educationDetailsDto;

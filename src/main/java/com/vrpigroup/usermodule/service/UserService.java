@@ -357,16 +357,16 @@ public class UserService {
         }
     }
 
-    public void forgotPassword(ForgotPasswordDto forgotPasswordDto) {
-        Optional<UserEntity> user = userModuleRepository.findByEmail(forgotPasswordDto.getEmail());
-        if (user.isPresent()) {
-            UserEntity userEntity = user.get();
-            userEntity.setOtp(forgotPasswordDto.getOtp());
-            userModuleRepository.save(userEntity);
-            sendOtpByEmail(forgotPasswordDto.getEmail(), forgotPasswordDto.getOtp());
-        } else {
-            logger.warn("Failed to send OTP for forgot password. User not found for email: {}", forgotPasswordDto.getEmail());
-        }
-    }
+//    public void forgotPassword(ForgotPasswordDto forgotPasswordDto) {
+//        Optional<UserEntity> user = userModuleRepository.findByEmail(forgotPasswordDto.getEmail());
+//        if (user.isPresent()) {
+//            UserEntity userEntity = user.get();
+//            userEntity.setOtp(forgotPasswordDto.getOtp());
+//            userModuleRepository.save(userEntity);
+//            sendOtpByEmail(forgotPasswordDto.getEmail(), forgotPasswordDto.getOtp());
+//        } else {
+//            logger.warn("Failed to send OTP for forgot password. User not found for email: {}", forgotPasswordDto.getEmail());
+//        }
+//    }
 }
 

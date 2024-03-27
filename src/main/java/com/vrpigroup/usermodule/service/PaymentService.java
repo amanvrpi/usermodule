@@ -1,23 +1,24 @@
 package com.vrpigroup.usermodule.service;
 
 import com.razorpay.*;
-import com.vrpigroup.usermodule.entity.PaymentDetails;
+
 import com.vrpigroup.usermodule.entity.PaymentDetailsRequest;
 import com.vrpigroup.usermodule.repo.CourseRepository;
 import com.vrpigroup.usermodule.repo.PaymentDetailsRequestRepo;
-import com.vrpigroup.usermodule.response.PaymentLinkResponse;
+
 import jakarta.servlet.http.HttpServletResponse;
-import org.json.JSONException;
+
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
+
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+
 import java.io.IOException;
 import java.util.Optional;
 
@@ -79,7 +80,6 @@ public class PaymentService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating payment link");
         }
     }
-
 
 
     private Long getCoursePrice(Long courseId) {
@@ -178,8 +178,8 @@ public class PaymentService {
         try {
             Payment payment = razorpay.payments.fetch(paymentId);
             Order order = razorpay.orders.fetch(orderId);
-            if(payment.get("amount").equals(amount) && order.get("amount").equals(amount)){
-                generateInvoice(paymentId,amount);
+            if (payment.get("amount").equals(amount) && order.get("amount").equals(amount)) {
+                generateInvoice(paymentId, amount);
                 PaymentDetailsRequest paymentDetailsRequest = new PaymentDetailsRequest();
                 paymentDetailsRequest.setOrderId(orderIdParam);
                 paymentDetailsRequest.setUserId(userId);

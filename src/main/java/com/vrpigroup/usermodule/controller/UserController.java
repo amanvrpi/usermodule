@@ -17,10 +17,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+/**
+ * @Author: Kanhaiya Dharu & Aman Raj
+ * @Project: usermodule
+ * @Date: 26/03/2024
+ * @Description: This class is used to handle all user related operations
+ * like create, update, delete, get user, login, verify account, contact us, update user profile and details
+ * */
 
 @Tag(
         name = "User",
@@ -130,9 +137,24 @@ public class UserController {
         }
     }
 
-    private boolean validateUserForLogin(UserEntity user, LoginDto loginDto) {
-        return (user.getEmail().equals(loginDto.getEmail())
-                && userModuleService.verifyEncryptedPassword(loginDto.getPassword(), user.getCreatePassword()));
+    @Operation(
+            summary = "Forgot Password",
+            description = "Forgot password")
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ResponseDto> forgotPassword(@RequestBody ForgotPasswordDto forgotPasswordDto) {
+        try {
+            log.info("UserController:forgotPassword - Processing forgot password request for email: {}", forgotPasswordDto.getEmail());
+            userModuleService.forgotPassword(forgotPasswordDto);
+            log.info("UserController:forgotPassword - Forgot password request processed successfully for email: {}", forgotPasswordDto.getEmail());
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new ResponseDto(UserConstants.HttpStatus_OK, UserConstants.FORGOT_PASSWORD_SUCCESS));
+        } catch (Exception e) {
+            log.error("UserController:forgotPassword - Error while processing forgot password request for email: {}", forgotPasswordDto.getEmail(), e);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseDto(UserConstants.INTERNAL_SERVER_ERROR_500, UserConstants.FAILED_TO_PROCESS_FORGOT_PASSWORD));
+        }
     }
 
     @Operation(

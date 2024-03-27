@@ -5,21 +5,26 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+import java.util.Objects;
+
 @Entity
-public  class UserCourseAssociation{
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        Long id;
-        Long userId;
-        Long courseId;
-    public UserCourseAssociation(Long userId, Long courseId) {
-        this(null, userId, courseId);
-    }
+@Getter
+@Setter
+@AllArgsConstructor
+public class UserCourseAssociation {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private Long userId;
+    private Long courseId;
+
+    public UserCourseAssociation() {
+
+    }
 }

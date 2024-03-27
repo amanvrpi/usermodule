@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class EnrollCourseListDto {
     private Long id;
-    private String courseId;
+    private String couseId;
     private String courseName;
 
 }

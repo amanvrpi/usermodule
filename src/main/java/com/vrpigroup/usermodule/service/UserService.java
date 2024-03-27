@@ -143,7 +143,7 @@ public class UserService {
                     .map(enrollment -> {
                         EnrollCourseListDto dto = new EnrollCourseListDto();
                         dto.setId(enrollment.getCourse().getId());
-                        dto.setCourseId(enrollment.getCourse().getLabel());
+                        dto.setCouseId(enrollment.getCourse().getLabel());
                         dto.setCourseName(enrollment.getCourse().getCourseName());
                         // Set any other fields as needed
                         return dto;
@@ -357,5 +357,16 @@ public class UserService {
         }
     }
 
+    public void forgotPassword(ForgotPasswordDto forgotPasswordDto) {
+        Optional<UserEntity> user = userModuleRepository.findByEmail(forgotPasswordDto.getEmail());
+        if (user.isPresent()) {
+            UserEntity userEntity = user.get();
+            userEntity.setOtp(forgotPasswordDto.getOtp());
+            userModuleRepository.save(userEntity);
+            sendOtpByEmail(forgotPasswordDto.getEmail(), forgotPasswordDto.getOtp());
+        } else {
+            logger.warn("Failed to send OTP for forgot password. User not found for email: {}", forgotPasswordDto.getEmail());
+        }
+    }
 }
 

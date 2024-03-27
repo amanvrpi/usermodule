@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.client.RestTemplate;
@@ -47,17 +46,18 @@ license = @License(
 )
 
 @EnableJpaRepositories
-public class UserModuleApplication extends SpringBootServletInitializer {
+public class UserModuleApplication {
 
+/*
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
-    }
+    }*/
 
     @Bean
     public RazorpayClient razorpayClient() {
         try {
-            return new RazorpayClient("rzp_test_1DP5mmOlF5G5aa", "XVbFb4j1fYx8Zt6Zb1fYx8Zt6");
+            return new RazorpayClient("rzp_test_HDibd0r72mDwz5", "AIs9tgYbPT4quUHU8VfMPcGy");
         } catch (Exception e) {
             e.printStackTrace();
             return null;

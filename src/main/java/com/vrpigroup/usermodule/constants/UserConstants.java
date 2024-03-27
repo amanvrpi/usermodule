@@ -104,6 +104,8 @@ public class UserConstants {
     public static final String FAILED_TO_UPLOAD_PROFILE_PHOTO ="Failed to upload profile photo";
     public static final String FAILED_TO_UPDATE_USER_DOCUMENTS = "Failed to update user documents";
     public static final String USER_DOCUMENTS_UPDATED_SUCCESSFULLY = "User documents updated successfully";
+    public static final String FORGOT_PASSWORD_SUCCESS = "Forgot password success";
+    public static final String FAILED_TO_PROCESS_FORGOT_PASSWORD = "Failed to process forgot password";
     ;
     ;
 }

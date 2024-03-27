@@ -1,10 +1,6 @@
 package com.vrpigroup.usermodule.dto;
 
-import com.vrpigroup.usermodule.entity.UserEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -19,8 +15,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EducationDetailsDto {
-
-    private Long id;
 
     @Schema(description = "Education Level", example = "Bachelor's Degree", required = true)
     @NotBlank(message = "Education level is required")
@@ -37,25 +31,20 @@ public class EducationDetailsDto {
     @Schema(description = "Institute Location", example = "City, Country")
     private String instituteLocation;
 
-    @NotNull(message = "Start year is required")
-    @Column(name = "start_year", nullable = false)
-    @Schema(description = "Start year of education", example = "2020")
-    private Integer startYear;
+    @Schema(description = "Start Date", example = "2020-09-01", required = true)
+    @NotNull(message = "Start date is required")
+    private LocalDate startDate;
 
-    @NotNull(message = "End year is required")
-    @FutureOrPresent(message = "End year must be present or in the future")
-    @Column(name = "end_year", nullable = false)
-    @Schema(description = "End year of education", example = "2024")
-    private Integer endYear;
+    @Schema(description = "End Date", example = "2024-06-30")
+    @FutureOrPresent(message = "End date must be in the present or future")
+    private LocalDate endDate;
 
-    @NotNull(message = "Percentage/CGPA is required")
-    @Column(name = "percentage_cgpa", nullable = false)
-    @Schema(description = "Percentage or CGPA obtained", example = "3.8")
-    private Double percentageOrCgpa;
+    @Schema(description = "Grade or GPA", example = "3.5")
+    private String grade;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id") // Adjust column name if necessary
-    private UserEntity user;
+    @Schema(description = "User ID", example = "123", required = true)
+    @NotNull(message = "User ID is required")
+    private Long userId;
 
     @Schema(description = "Date and time when the educational details were created")
     private LocalDateTime createdAt;

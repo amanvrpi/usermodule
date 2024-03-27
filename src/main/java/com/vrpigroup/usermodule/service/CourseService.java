@@ -1,121 +1,135 @@
 package com.vrpigroup.usermodule.service;
 
-import com.vrpigroup.usermodule.entity.PaymentDetailsRequest;
-import com.vrpigroup.usermodule.exception.CourseNotActiveException;
-import com.vrpigroup.usermodule.annotations.email.EmailValidationServiceImpl;
 import com.vrpigroup.usermodule.entity.CourseEntity;
 import com.vrpigroup.usermodule.entity.UserCourseAssociation;
 import com.vrpigroup.usermodule.entity.UserEntity;
+import com.vrpigroup.usermodule.exception.CourseNotActiveException;
 import com.vrpigroup.usermodule.exception.CourseNotFoundException;
 import com.vrpigroup.usermodule.repo.CourseRepository;
-import com.vrpigroup.usermodule.repo.PaymentDetailsRequestRepo;
 import com.vrpigroup.usermodule.repo.UserCourseAssociationRepo;
 import com.vrpigroup.usermodule.repo.UserRepository;
-import org.springframework.http.*;
-import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+import com.vrpigroup.usermodule.annotations.email.EmailValidationServiceImpl;
+import com.vrpigroup.usermodule.response.PaymentLinkResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
-@Component
+import java.util.Random;
+
+@Service
 public class CourseService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CourseService.class);
 
     private final UserCourseAssociationRepo userCourseAssociationRepo;
     private final EmailValidationServiceImpl emailValidationService;
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
     private final PaymentService paymentService;
-    private final PaymentDetailsRequestRepo paymentDetailsRequestRepo;
-    private final String paymentUrl = "http://localhost:8081/payment-vrpi/payments/";
 
-    public CourseService(UserCourseAssociationRepo userCourseAssociationRepo, EmailValidationServiceImpl emailValidationService, CourseRepository courseRepository, UserRepository userRepository, PaymentService paymentService, PaymentDetailsRequestRepo paymentDetailsRequestRepo) {
+    public CourseService(UserCourseAssociationRepo userCourseAssociationRepo, EmailValidationServiceImpl emailValidationService, CourseRepository courseRepository, UserRepository userRepository, PaymentService paymentService) {
         this.userCourseAssociationRepo = userCourseAssociationRepo;
         this.emailValidationService = emailValidationService;
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
         this.paymentService = paymentService;
-        this.paymentDetailsRequestRepo = paymentDetailsRequestRepo;
     }
 
     public Optional<CourseEntity> getCourseDetails(Long id) {
-        return Optional.of(courseRepository.findById(id)).orElseThrow(
-                () -> new RuntimeException("Course not found"));
+        return courseRepository.findById(id);
     }
 
     public CourseEntity createCourse(CourseEntity courseEntity) {
-        return Optional.of(courseRepository.save(courseEntity)).orElseThrow(
-                () -> new RuntimeException("Course not created"));
+        return courseRepository.save(courseEntity);
     }
 
     public String updateCourse(Long id) {
-        return Optional.of(courseRepository.findById(id)).orElseThrow(
-                () -> new RuntimeException("Course not found")).toString();
+        return courseRepository.findById(id)
+                .map(Object::toString)
+                .orElse("Course not found");
     }
 
     public Optional<CourseEntity> deleteCourse(Long id) {
-        return Optional.of(courseRepository.findById(id)).orElseThrow(
-                () -> new RuntimeException("Course not found"));
+        Optional<CourseEntity> course = courseRepository.findById(id);
+        course.ifPresent(courseRepository::delete);
+        return course;
     }
 
-    public Object getAllCourses() {
-        return Optional.of(courseRepository.findAll()).orElseThrow(
-                () -> new RuntimeException("Courses not found"));
+    public Iterable<CourseEntity> getAllCourses() {
+        return courseRepository.findAll();
     }
 
-    public Object enrollUserForCourse(Long courseId, Long userId) throws CourseNotFoundException, CourseNotActiveException {
+    @Transactional
+    public boolean enrollUserForCourse(Long courseId, Long userId) throws CourseNotFoundException, CourseNotActiveException {
         validateEnrollmentParameters(courseId, userId);
-//        fetching course from db
-        CourseEntity course = courseRepository.findById(courseId).orElseThrow(null);
-        System.out.println(course.getCourseName());
-//        calling validateCourse method to check if course is present
+        CourseEntity course = getCachedCourseById(courseId);
         validateCourse(course, courseId);
         validateActiveCourse(course);
-        ResponseEntity<?> paymentResponse = initiatePayment(userId, courseId);
-        if (paymentResponse.getStatusCode() == HttpStatus.OK) {
-            enrollUser(userId, courseId);
-            sendConfirmationEmail(userId, courseId);
-            return paymentResponse;
-        } else {
-            throw new RuntimeException("Error initiating payment");
+        try {
+            ResponseEntity<Map<String, String>> paymentResponse = initiatePayment(userId, courseId);
+            if (paymentResponse.getStatusCode() == HttpStatus.OK) {
+                return true;
+            } else {
+                LOGGER.error("Error initiating payment: {}", paymentResponse.getBody());
+                return false;
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error enrolling user for course: {}", e.getMessage());
+            return false;
         }
     }
 
     private void sendConfirmationEmail(Long userId, Long courseId) {
-        var userEmail = userRepository.findById(userId).orElseThrow(
-                () -> new RuntimeException("User not found")).getEmail();
-        var course = courseRepository.findById(courseId).orElseThrow(
-                () -> new RuntimeException("Course not found"));
-        emailValidationService.sendConformationMail(userEmail,course.getCourseName());
+        try {
+            UserEntity user = getUserDetails(userId);
+            String userEmail = user.getEmail();
+            CourseEntity course = getCourseDetails(courseId)
+                    .orElseThrow(() -> new CourseNotFoundException("Course not found with ID: " + courseId));
+            emailValidationService.sendConformationMail(userEmail, course.getCourseName());
+        } catch (CourseNotFoundException e) {
+            LOGGER.error("Error sending confirmation email: {}", e.getMessage());
+        }
     }
 
     private void enrollUser(Long userId, Long courseId) {
-        var userCourseAssociation = new UserCourseAssociation(userId, courseId);
+        UserCourseAssociation userCourseAssociation = new UserCourseAssociation(null, userId, courseId);
         userCourseAssociationRepo.save(userCourseAssociation);
     }
 
-    private ResponseEntity<?> initiatePayment(Long userId, Long courseId) {
-        MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-        UserEntity user = getUserDetails(userId);
-        map.add("userId", userId);
-        map.add("courseId", courseId);
-        map.add("firstName", user.getFirstName());
-        map.add("lastName", user.getLastName());
-        map.add("email", user.getEmail());
-        map.add("mobile", user.getPhoneNumber());
-        var orderId = generateRandomOrderId(userId, courseId);
-       return paymentService.createPaymentLink(Long.valueOf(orderId),
-                userId, courseId, user.getFirstName(),
-                user.getLastName(), user.getPhoneNumber(), user.getEmail());
-//        return new ResponseEntity<>(true, HttpStatus.OK);
+    private ResponseEntity<Map<String, String>> initiatePayment(Long userId, Long courseId) {
+        try {
+            UserEntity user = getUserDetails(userId);
+            Long coursePrice = getCoursePriceByCourseId(courseId);
+            var orderId = Math.toIntExact(userId + courseId + new Random().nextInt(10000));
+            if (coursePrice != null && coursePrice > 0) {
+                String paymentLinkResponse = String.valueOf(paymentService.createPaymentLink(Long.valueOf(orderId), userId, courseId, user.getFirstName(), user.getLastName(), user.getPhoneNumber(), user.getEmail()));
+                if (paymentLinkResponse != null) {
+                    Map<String, String> responseBody = new HashMap<>();
+                    responseBody.put("paymentLinkUrl", paymentLinkResponse);
+                    responseBody.put("paymentLinkId", "");
+                    return ResponseEntity.ok(responseBody);
+                } else {
+                    throw new RuntimeException("Payment link response is null");
+                }
+            } else {
+                throw new RuntimeException("Course price is not set or is zero");
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error initiating payment: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
+
 
     private UserEntity getUserDetails(Long userId) {
-        return userRepository.findById(userId).orElseThrow(
-                () -> new RuntimeException("User not found"));
-    }
-
-    private Integer generateRandomOrderId(Long userId, Long courseId) {
-        return Math.toIntExact((userId + courseId + hashCode()));
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
     }
 
     private void validateEnrollmentParameters(Long courseId, Long userId) {
@@ -124,8 +138,9 @@ public class CourseService {
         }
     }
 
-    private CourseEntity getCachedCourseById(Long courseId) {
-        return courseRepository.findById(courseId).orElse(null);
+    private CourseEntity getCachedCourseById(Long courseId) throws CourseNotFoundException {
+        return courseRepository.findById(courseId)
+                .orElseThrow(() -> new CourseNotFoundException("Course not found with ID: " + courseId));
     }
 
     private void validateCourse(CourseEntity course, Long courseId) throws CourseNotFoundException {
@@ -140,11 +155,8 @@ public class CourseService {
         }
     }
 
-    public Long getCoursePriceByCourseId(Long courseId) {
-        return Optional.ofNullable(courseRepository.findById(courseId)
-                .get().getPrice()).orElse(0L);
-    }
-
-    public void storePaymentDetails(Long orderId, Long userId, Long courseId, String paymentLinkId, String paymentLinkUrl) {
+    public Long getCoursePriceByCourseId(Long courseId) throws CourseNotFoundException {
+        return Optional.of(courseRepository.findById(courseId)
+                .orElseThrow(() -> new CourseNotFoundException("Course not found with ID: " + courseId)).getPrice()).orElse(0L);
     }
 }

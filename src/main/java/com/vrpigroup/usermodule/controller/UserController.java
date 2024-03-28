@@ -9,7 +9,6 @@ import com.vrpigroup.usermodule.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,8 +17,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,7 +42,6 @@ public class UserController {
 
     private final UserService userModuleService;
 
-    @Autowired
     public UserController(UserService userModuleService) {
         this.userModuleService = userModuleService;
     }
@@ -122,22 +118,32 @@ public class UserController {
             summary = "Login User",
             description = "Login user")
     @PostMapping("/login")
-    public ResponseEntity<UserDetailsDto> loginUser(@Validated @RequestBody LoginDto loginDto) {
+    public UserDetailsDto loginUser(@Validated @RequestBody LoginDto loginDto) {
      UserDetailsDto user=null;
+     log.info("UserController:loginUser - Attempting login for user: {}", loginDto.getEmail());
+         return userModuleService.loginUser(loginDto);
+    }
+
+    /*@Operation(
+            summary = "Get User Data",
+            description = "Get user data")
+    @GetMapping("/get-user-data/{userId}")
+    public ResponseEntity<UserDetailsDto> getUserData(@PathVariable Long userId) {
         try {
-            log.info("UserController:loginUser - Attempting login for user: {}", loginDto.getEmail());
-             user = userModuleService.loginUser(loginDto);
-            if (user != null) {
-                return new ResponseEntity<>(user,HttpStatus.OK);
+            log.info("UserController:getUserData - Getting user data for user ID: {}", userId);
+            var userData = userModuleService.getUserData(userId);
+            if (userData != null) {
+                log.info("UserController:getUserData - User data fetched successfully for user ID: {}", userId);
+                return ResponseEntity.ok((UserDetailsDto) userData);
             } else {
-                log.warn("UserController:loginUser - Invalid credentials for user");
-                return new ResponseEntity<>(user,HttpStatus.INTERNAL_SERVER_ERROR);
+                log.warn("UserController:getUserData - Failed to fetch user data for user ID: {}", userId);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
         } catch (Exception e) {
-            log.error("UserController:loginUser - Error during login for user: {}", loginDto.getEmail(), e);
-            return new ResponseEntity<>(user,HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error("UserController:getUserData - Error while fetching user data for user ID: {}", userId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-    }
+    }*/
 
 //    @Operation(
 //            summary = "Forgot Password",
@@ -146,7 +152,7 @@ public class UserController {
 //    public ResponseEntity<ResponseDto> forgotPassword(@RequestBody ForgotPasswordDto forgotPasswordDto) {
 //        try {
 //            log.info("UserController:forgotPassword - Processing forgot password request for email: {}", forgotPasswordDto.getEmail());
-////            userModuleService.forgotPassword(forgotPasswordDto);
+//            userModuleService.forgotPassword(forgotPasswordDto);
 //            log.info("UserController:forgotPassword - Forgot password request processed successfully for email: {}", forgotPasswordDto.getEmail());
 //            return ResponseEntity
 //                    .status(HttpStatus.OK)

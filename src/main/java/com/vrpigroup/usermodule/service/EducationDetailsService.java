@@ -36,4 +36,9 @@ public class EducationDetailsService {
             return "Something went wrong while saving data: " + e.getMessage();
         }
     }
+
+    public EducationDetails getEducationDetails(Long userId) {
+        return educationDetailsRepo.findByUserId(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Education details not found for user ID: " + userId));
+    }
 }

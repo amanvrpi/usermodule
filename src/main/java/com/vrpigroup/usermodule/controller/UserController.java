@@ -8,6 +8,7 @@ import com.vrpigroup.usermodule.exception.UserNotFoundException;
 import com.vrpigroup.usermodule.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -122,7 +123,7 @@ public class UserController {
             summary = "Login User",
             description = "Login user")
     @PostMapping("/login")
-    public ResponseEntity<UserDetailsDto> loginUser(@Validated @RequestBody LoginDto loginDto) {
+    public ResponseEntity<UserDetailsDto> loginUser(@Valid @RequestBody LoginDto loginDto) {
      UserDetailsDto user=null;
         try {
             log.info("UserController:loginUser - Attempting login for user: {}", loginDto.getEmail());

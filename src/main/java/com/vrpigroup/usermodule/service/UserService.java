@@ -5,6 +5,7 @@ import com.vrpigroup.usermodule.constants.UserConstants;
 import com.vrpigroup.usermodule.dto.*;
 import com.vrpigroup.usermodule.entity.*;
 import com.vrpigroup.usermodule.exception.UserAlreadyExistException;
+import com.vrpigroup.usermodule.exception.UserNotFoundException;
 import com.vrpigroup.usermodule.mapper.UserMapper;
 import com.vrpigroup.usermodule.repo.ContactUsRepo;
 import com.vrpigroup.usermodule.repo.EducationDetailsRepo;
@@ -128,11 +129,12 @@ public class UserService {
 
     public UserDetailsDto loginUser(LoginDto userModule) {
         Optional<UserEntity> userByEmail = userModuleRepository.findByEmail(userModule.getEmail());
+        if(userByEmail == null){
+            throw new UserNotFoundException("User with email not found");
+        }
         if (userByEmail.isPresent() && verifyLogin(userByEmail.get(), userModule)) {
             UserEntity user = userByEmail.get();
-            Long userId = user.getId(); // Obtain the user ID
-
-            // Fetch education details
+            Long userId = user.getId();
             Optional<EducationDetails> educationDetails = educationDetailsRepo.findByUserId(userId);
 
             // Fetch enrollments based on the user ID dynamically
@@ -164,6 +166,8 @@ public class UserService {
                     UserConstants.HttpStatus_OK
             ));
             return userDetailsDto;
+        }else {
+
         }
         logger.warn("Unsuccessful login attempt for email: {}", userModule.getEmail());
 
@@ -325,6 +329,28 @@ public class UserService {
             }
         }
     }
+
+    /*public Object getUserData(Long userId) {
+        Optional<UserEntity> user = userModuleRepository.findById(userId);
+        var userEducation = educationDetailsRepo.findByUserId(userId);
+        var userEnrollments = enrollmentRepository.findByUserId(userId);
+        if (user.isPresent()) {
+            UserEntity userEntity = user.get();
+            UserDto userDto = new UserDto();
+            userDto.setFirstName(userEntity.getFirstName());
+            userDto.setLastName(userEntity.getLastName());
+            userDto.setPhoneNumber(userEntity.getPhoneNumber());
+            userDto.setEmail(userEntity.getEmail());
+            return userDto;
+        } else {
+            return null;
+        }
+    }*/
+
+
+    // Fetch all user Data by ID - (User's personal data,
+    // educational details and enrolled course data - if possible mandatory certificates details)
+
 
 //    public void forgotPassword(ForgotPasswordDto forgotPasswordDto) {
 //        Optional<UserEntity> user = userModuleRepository.findByEmail(forgotPasswordDto.getEmail());

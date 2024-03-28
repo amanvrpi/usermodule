@@ -3,10 +3,7 @@ package com.vrpigroup.usermodule.entity;
 import com.vrpigroup.usermodule.annotations.email.ValidEmail;
 import com.vrpigroup.usermodule.annotations.phone.Phone;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,10 +18,9 @@ import java.time.LocalDateTime;
 public class ContactUs {
 @Schema(name = "id", description = "Id", example = "1", required = true)
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 @Schema(name = "name", description = "Name", example = "Aman Raj", required = true)
-    @Column(nullable = false)
     private String name;
 @Schema(name = "email", description = "Email Id", example = "")
     @ValidEmail
@@ -35,10 +31,10 @@ public class ContactUs {
     private String description;
 @Schema(name = "phone", description = "Phone Number", example = "1234567890", required = true)
     @Column(nullable = false)
-    private Long phone;
-@Schema(name = "messagedOn", description = "Messaged On", example = "2021-12-12T12:12:12", required = true)
+    private String phone;
+    @Schema(name = "messagedOn", description = "Messaged On", example = "2021-12-12T12:12:12", required = true)
     @CreatedDate
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime messagedOn;
 
 }

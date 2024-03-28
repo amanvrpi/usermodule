@@ -51,7 +51,7 @@ public class PaymentService {
         this.servletResponse = servletResponse;
     }
 
-    public ResponseEntity<String> createPaymentLink(
+    public String createPaymentLink(
             @PathVariable Long orderId,
             @RequestParam Long userId,
             @RequestParam Long courseId,
@@ -69,15 +69,15 @@ public class PaymentService {
                 String paymentLinkUrl = payment.get("short_url");
                 servletResponse.sendRedirect(paymentLinkUrl);
                 LOGGER.info("Payment link created: {}", paymentLinkUrl);
-                String response = "Payment link URL: " + paymentLinkUrl + ", Payment link ID: " + paymentLinkId;
-                return ResponseEntity.ok(response);
+                //String response = "Payment link URL: " + paymentLinkUrl + ", Payment link ID: " + paymentLinkId;
+                return paymentLinkUrl;
             } else {
                 LOGGER.error("Course price is not greater than 0");
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Course price is not greater than 0");
+                return "Course price is not greater than 0";
             }
         } catch (RazorpayException | IOException e) {
             LOGGER.error("Error creating payment link: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating payment link");
+            return "Error creating payment link";
         }
     }
 

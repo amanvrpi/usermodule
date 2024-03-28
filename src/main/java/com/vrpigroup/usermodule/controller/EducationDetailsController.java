@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/education-details")
 public class EducationDetailsController {
 @Autowired
@@ -20,6 +21,12 @@ public class EducationDetailsController {
         String result = educationDetailsService.saveEducationDetails(educationDetails, userId);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
+    @GetMapping("/get-education-details/{userId}")
+    public ResponseEntity<EducationDetails> getEducationDetails(@PathVariable Long userId) {
+        EducationDetails educationDetails = educationDetailsService.getEducationDetails(userId);
+        return new ResponseEntity<>(educationDetails, HttpStatus.OK);
+    }
+
     @GetMapping("/get-education-details/{userId}")
     public ResponseEntity<EducationDetails> getEducationDetails(@PathVariable Long userId) {
         EducationDetails educationDetails = educationDetailsService.getEducationDetails(userId);

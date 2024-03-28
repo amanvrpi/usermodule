@@ -239,62 +239,9 @@ public class UserService {
         return null;
     }
 
-    public Boolean updateUserDocuments(Long id, MultipartFile aadharFront, MultipartFile aadharBack, MultipartFile profilePic, MultipartFile incomeCert) {
-        Optional<UserEntity> optionalUser = userModuleRepository.findById(id);
-        if (optionalUser.isPresent()) {
-            UserEntity user = optionalUser.get();
-            try {
-                if (profilePic != null && !profilePic.isEmpty()) {
-                    if (isValidFileType(profilePic, "jpeg")) {
-                        user.setProfilePic(profilePic.getBytes());
-                    } else {
-                        throw new IllegalArgumentException("Profile photo must be in JPEG format.");
-                    }
-                }
-                if (aadharFront != null && !aadharFront.isEmpty()) {
-                    if (isValidFileType(aadharFront, "pdf")) {
-                        user.setAadharFront(aadharFront.getBytes());
-                    } else {
-                        throw new IllegalArgumentException("Aadhar front must be in PDF format.");
-                    }
-                }
-                if (aadharBack != null && !aadharBack.isEmpty()) {
-                    if (isValidFileType(aadharBack, "pdf")) {
-                        user.setAadharBack(aadharBack.getBytes());
-                    } else {
-                        throw new IllegalArgumentException("Aadhar back must be in PDF format.");
-                    }
-                }
-                if (incomeCert != null && !incomeCert.isEmpty()) {
-                    if (isValidFileType(incomeCert, "pdf")) {
-                        user.setAadharBack(incomeCert.getBytes());
-                    } else {
-                        throw new IllegalArgumentException("incomeCert must be in PDF format.");
-                    }
-                }
-                userModuleRepository.save(user);
-                return true;
-            } catch (Exception e) {
-                logger.error("Error while updating user documents", e);
-                return false;
-            }
-        } else {
-            logger.warn("Failed to update user documents. User not found for ID: {}", id);
-            return false;
-        }
-    }
 
-    private boolean isValidFileType(MultipartFile file, String fileType) {
-        if (file == null || file.isEmpty()) {
-            // No file uploaded, so it's valid
-            return true;
-        }
 
-        String[] allowedExtensions = {"jpeg", "pdf"};
-        String fileExtension = getFileExtension(file);
 
-        return fileType.equalsIgnoreCase(fileExtension) && Arrays.asList(allowedExtensions).contains(fileExtension.toLowerCase());
-    }
 
     private String getFileExtension(MultipartFile file) {
         String fileName = file.getOriginalFilename();
@@ -305,38 +252,40 @@ public class UserService {
         Optional<UserEntity> userOptional = userModuleRepository.findById(id);
         if (userOptional.isPresent()) {
             UserEntity user = userOptional.get();
+            byte[] imageData = null;
 
             switch (field) {
                 case "profilePic":
-                    if (user.getProfilePic() != null) {
-                        return user.getProfilePic();
-                    } else {
-                        logger.warn("Profile photo is null for user with ID: {}", id);
-                        return null; // or return a default profile photo
-                    }
+                    imageData = user.getProfilePic();
+                    break;
                 case "aadharFront":
-                    if (user.getAadharFront() != null) {
-                        return user.getAadharFront();
-                    } else {
-                        logger.warn("Aadhar Front photo is null for user with ID: {}", id);
-                        return null; // or return a default profile photo
-                    }
+                    imageData = user.getAadharFront();
+                    break;
                 case "aadharBack":
-                    if (user.getAadharBack() != null) {
-                        return user.getAadharBack();
-                    } else {
-                        logger.warn("Aadhar Back photo is null for user with ID: {}", id);
-                        return null; // or return a default profile photo
-                    }
+                    imageData = user.getAadharBack();
+                    break;
+                case "incomeCert":
+                    imageData = user.getIncomeCert();
+                    break;
                 default:
                     logger.error("Invalid field type: {}", field);
-                    return null; // or throw an exception
+                    // You might throw an IllegalArgumentException or return a default image here
+            }
+
+            if (imageData != null) {
+                return imageData;
+            } else {
+                logger.warn("{} photo is null for user with ID: {}", field, id);
+                // You might return a default image here
+                return null;
             }
         } else {
             logger.warn("Failed to get user. User not found for ID: {}", id);
-            return null; // or throw an exception, depending on your use case
+            // You might throw a UserNotFoundException or return a default image here
+            return null;
         }
     }
+
 
     public ResponseEntity<UserDto> getUserDetails(Long userId) {
         Optional<UserEntity> user = userModuleRepository.findById(userId);
@@ -350,6 +299,30 @@ public class UserService {
             return ResponseEntity.ok(userDto);
         } else {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    public void updateUserDocuments(Long userId, MultipartFile profilePhoto, MultipartFile aadharFront, MultipartFile aadharBack, MultipartFile incomeCert) {
+      Optional<UserEntity> user=  userModuleRepository.findById(userId);
+        if(user.isPresent()){
+            UserEntity userEntity = user.get();
+            try {
+                if (profilePhoto != null && !profilePhoto.isEmpty()) {
+                    userEntity.setProfilePic(profilePhoto.getBytes());
+                }
+                if (aadharFront != null && !aadharFront.isEmpty()) {
+                    userEntity.setAadharFront(aadharFront.getBytes());
+                }
+                if (aadharBack != null && !aadharBack.isEmpty()) {
+                    userEntity.setAadharBack(aadharBack.getBytes());
+                }
+                if (incomeCert != null && !incomeCert.isEmpty()) {
+                    userEntity.setIncomeCert(incomeCert.getBytes());
+                }
+                userModuleRepository.save(userEntity);
+            } catch (IOException e) {
+                logger.error("Error while setting Stroring image/pdf for user", e);
+            }
         }
     }
 

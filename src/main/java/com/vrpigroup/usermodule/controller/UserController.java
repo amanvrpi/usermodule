@@ -17,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -182,86 +184,37 @@ public class UserController {
     }
 
 
-    @PutMapping("/update-doc/{id}")
-    public ResponseEntity<ResponseDto> updateUserDocuments(@PathVariable Long id,
-                                                           @RequestParam(value = "profilePhoto", required = true) MultipartFile profilePhoto,
-                                                           @RequestParam(value = "aadharFront", required = true) MultipartFile aadharFront,
-                                                           @RequestParam(value = "aadharBack", required = true) MultipartFile aadharBack,
-                                                           @RequestParam(value = "incomeCert", required = true) MultipartFile incomeCert
-                                                           ) {
+    @PutMapping("/update-doc/{userId}")
+    public ResponseEntity<ResponseDto> updateUserDocuments(@PathVariable Long userId,
+                                                           @RequestParam("profilePhoto") MultipartFile profilePhoto,
+                                                           @RequestParam("aadharFront") MultipartFile aadharFront,
+                                                           @RequestParam("aadharBack") MultipartFile aadharBack,
+                                                           @RequestParam("incomeCert") MultipartFile incomeCert) {
+        userModuleService.updateUserDocuments(userId, profilePhoto, aadharFront, aadharBack, incomeCert);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ResponseDto(HttpStatus.ACCEPTED.name(), "User documents updated successfully"));
+    }
+
+    @GetMapping("/get-image/{field}/{userId}")
+    public ResponseEntity<?> getImage(@PathVariable String field, @PathVariable Long userId) {
         try {
-            // Validate file types
-            if (profilePhoto != null && !profilePhoto.isEmpty()) {
-                if (!isValidFileType(profilePhoto, "jpeg")) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body(new ResponseDto(UserConstants.BAD_REQUEST_400, "Profile photo must be in JPEG format."));
-                }
-            }
-
-            if (aadharFront != null && !aadharFront.isEmpty()) {
-                if (!isValidFileType(aadharFront, "pdf")) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body(new ResponseDto(UserConstants.BAD_REQUEST_400, "Aadhar front must be in PDF format."));
-                }
-            }
-
-            if (aadharBack != null && !aadharBack.isEmpty()) {
-                if (!isValidFileType(aadharBack, "pdf")) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body(new ResponseDto(UserConstants.BAD_REQUEST_400, "Aadhar back must be in PDF format."));
-                }
-            }
-            if (incomeCert != null && !incomeCert.isEmpty()) {
-                if (!isValidFileType(aadharBack, "pdf")) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body(new ResponseDto(UserConstants.BAD_REQUEST_400, "incomeCert must be in PDF format."));
-                }
-            }
-
-            // Call service method to update user documents
-            Boolean isDocSave =  userModuleService.updateUserDocuments(id, profilePhoto, aadharFront, aadharBack, incomeCert);
-
-            // Return response based on the result of the service call
-            if (isDocSave) {
-                return ResponseEntity.status(HttpStatus.OK)
-                        .body(new ResponseDto(UserConstants.HttpStatus_OK, UserConstants.USER_DOCUMENTS_UPDATED_SUCCESSFULLY));
+            byte[] image = userModuleService.getImage(userId, field);
+            if (image != null) {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.IMAGE_PNG);
+                return new ResponseEntity<>(image, headers, HttpStatus.OK);
             } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(new ResponseDto(UserConstants.INTERNAL_SERVER_ERROR_500, UserConstants.FAILED_TO_UPDATE_USER_DOCUMENTS));
+                return ResponseEntity.notFound().build();
             }
         } catch (Exception e) {
+            // Log the error for debugging purposes
+            log.error("Error occurred while retrieving image for user {} and field {}", userId, field, e);
+            // Return a generic error response
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ResponseDto(UserConstants.INTERNAL_SERVER_ERROR_500, "Error occurred while updating user documents."));
+                    .body("An error occurred while retrieving the image.");
         }
     }
 
-    private boolean isValidFileType(MultipartFile file, String fileType) {
-        if (file == null || file.isEmpty()) {
-            // No file uploaded, so it's valid
-            return true;
-        }
-
-        String[] allowedExtensions = {"jpeg", "pdf"};
-        String fileExtension = getFileExtension(file);
-
-        return fileType.equalsIgnoreCase(fileExtension) && Arrays.asList(allowedExtensions).contains(fileExtension.toLowerCase());
-    }
-
-    private String getFileExtension(MultipartFile file) {
-        String fileName = file.getOriginalFilename();
-        return fileName != null ? fileName.substring(fileName.lastIndexOf(".") + 1) : null;
-    }
-    @GetMapping("/get-image/{field}/{id}")
-    public ResponseEntity<?> getImage(@PathVariable String field, @RequestParam Long id) {
-        byte[] image = userModuleService.getImage(id, field);
-        if (image != null) {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.IMAGE_PNG);
-            return new ResponseEntity<>(image, headers, HttpStatus.OK);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
     @Operation(
             summary = "Delete User",
             description = "Delete user")

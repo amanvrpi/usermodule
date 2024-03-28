@@ -1,21 +1,14 @@
 package com.vrpigroup.usermodule.service;
 
 import com.razorpay.*;
-
 import com.vrpigroup.usermodule.entity.PaymentDetailsRequest;
 import com.vrpigroup.usermodule.repo.CourseRepository;
 import com.vrpigroup.usermodule.repo.PaymentDetailsRequestRepo;
-
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -65,7 +58,8 @@ public class PaymentService {
             if (coursePrice > 0) {
                 JSONObject paymentLinkRequest = createPaymentLinkRequest(Math.toIntExact(coursePrice), firstName, lastName, mobile, email, orderId, userId, courseId, paymentLinkId, paymentLinkUrl);
                 PaymentLink payment = razorpay.paymentLink.create(paymentLinkRequest);
-                String paymentLinkId = payment.get("id");
+                paymentLinkId = payment.get("id");
+
                 String paymentLinkUrl = payment.get("short_url");
                 servletResponse.sendRedirect(paymentLinkUrl);
                 LOGGER.info("Payment link created: {}", paymentLinkUrl);
@@ -81,58 +75,13 @@ public class PaymentService {
         }
     }
 
-
     private Long getCoursePrice(Long courseId) {
         return Optional.ofNullable(courseRepository.findById(courseId).get().getPrice()).orElse(0L);
     }
 
-    /*public boolean captureAndVerifyPayment(Long orderId, Long userId, Long courseId, String paymentLinkId, int coursePrice, String paymentLinkUrl) {
-        try {
-            *//*Payment payment = capturePayment(paymentLinkId, coursePrice, "INR");
-            if (payment != null) {*//**//*
-                //generateInvoice(payment.get("id"), coursePrice, "INR");*//*
-                boolean paymentSuccess = verifyPayment(paymentLinkId);
-                if (paymentSuccess) {
-                    PaymentDetailsRequest paymentDetailsRequest = new PaymentDetailsRequest();
-                    paymentDetailsRequest.setOrderId(orderId);
-                    paymentDetailsRequest.setUserId(userId);
-                    paymentDetailsRequest.setCourseId(courseId);
-                    paymentDetailsRequest.setPaymentLinkId(paymentLinkId);
-                    paymentDetailsRequest.setPaymentLinkUrl(paymentLinkUrl);
-                    storePaymentDetails(paymentDetailsRequest);
-                    paymentDetailsRequestRepo.save(paymentDetailsRequest);
-                }
-                return paymentSuccess;
-            *//*} else {
-                LOGGER.error("Failed to capture payment for payment link ID: {}", paymentLinkId);
-                return false;
-            }*//*
-        } catch (Exception e) {
-            LOGGER.error("Error capturing and verifying payment: {}", e.getMessage());
-            return false;
-        }
-    }*/
-
-
     private void storePaymentDetails(PaymentDetailsRequest paymentDetailsRequest) {
         paymentDetailsRequestRepo.save(paymentDetailsRequest);
     }
-
-    public Invoice generateInvoice(String paymentId, int amount) {
-        try {
-            JSONObject invoiceRequest = new JSONObject();
-            invoiceRequest.put("amount", amount);
-            invoiceRequest.put("currency", "INR");
-            invoiceRequest.put("payment_id", paymentId);
-            Invoice invoice = razorpay.invoices.create(invoiceRequest);
-            LOGGER.info("Invoice generated successfully: {}", invoice);
-            return invoice;
-        } catch (RazorpayException e) {
-            LOGGER.error("Error generating invoice: {}", e.getMessage());
-            return null;
-        }
-    }
-
 
     private JSONObject createPaymentLinkRequest(int coursePrice, String firstName, String lastName, String mobile, String email, Long orderId, Long userId, Long courseId, String paymentLinkId, String paymentLinkUrl) {
         JSONObject paymentLinkRequest = new JSONObject();
@@ -151,13 +100,11 @@ public class PaymentService {
         paymentLinkRequest.put("expire_by", System.currentTimeMillis() + 86400000);
 
         // Constructing the callback URL with dynamic parameters
-        String callbackUrl = "https://vrpigroup.com/verify-payment"
+        String callbackUrl = "https://vrpigroup.com/course/verify-payment"
                 + "?orderId=" + orderId
                 + "&userId=" + userId
                 + "&courseId=" + courseId
-                + "&paymentId=" + paymentLinkId
-                + "&amount=" + (coursePrice * 100)
-                + "&paymentLinkUrl=" + paymentLinkUrl;
+                + "&amount=" + (coursePrice * 100);
         paymentLinkRequest.put("callback_url", callbackUrl);
         paymentLinkRequest.put("callback_method", "get");
         JSONObject notes = new JSONObject();
@@ -173,19 +120,19 @@ public class PaymentService {
         return paymentLinkRequest;
     }
 
-    public Payment verifyPayment(String paymentId, String orderId, int amount, Long orderIdParam,
-                                 Long userId, Long courseId, String paymentLinkId) {
+
+    public Payment verifyPayment(String paymentId, int amount, Long userId, Long courseId, String signature) {
         try {
             Payment payment = razorpay.payments.fetch(paymentId);
-            Order order = razorpay.orders.fetch(orderId);
-            if (payment.get("amount").equals(amount) && order.get("amount").equals(amount)) {
-                generateInvoice(paymentId, amount);
+            System.out.println(payment);
+            if (payment.get("amount").equals(amount)) {
+                generateInvoice(amount, userId, courseId);
                 PaymentDetailsRequest paymentDetailsRequest = new PaymentDetailsRequest();
-                paymentDetailsRequest.setOrderId(orderIdParam);
+                paymentDetailsRequest.setSignature(signature);
                 paymentDetailsRequest.setUserId(userId);
                 paymentDetailsRequest.setCourseId(courseId);
-                paymentDetailsRequest.setPaymentLinkId(paymentLinkId);
-                paymentDetailsRequest.setPaymentLinkUrl(paymentLinkUrl);
+                paymentDetailsRequest.setPaymentId(paymentId);
+                paymentDetailsRequest.setAmount(Long.valueOf(amount));
                 storePaymentDetails(paymentDetailsRequest);
                 paymentDetailsRequestRepo.save(paymentDetailsRequest);
                 return payment;
@@ -194,6 +141,22 @@ public class PaymentService {
             }
         } catch (RazorpayException e) {
             return null;
+        }
+    }
+
+    private void generateInvoice(int amount, Long userId, Long courseId) {
+        try {
+            JSONObject invoiceRequest = new JSONObject();
+            invoiceRequest.put("amount", amount);
+            invoiceRequest.put("currency", "INR");
+            invoiceRequest.put("type", "link");
+            invoiceRequest.put("customer_email", "email");
+            invoiceRequest.put("customer_contact", "mobile");
+            invoiceRequest.put("description", "Course payment for course ID: " + courseId);
+            Invoice invoice = razorpay.invoices.create(invoiceRequest);
+            LOGGER.info("Invoice generated successfully: {}", invoice);
+        } catch (RazorpayException e) {
+            LOGGER.error("Error generating invoice: {}", e.getMessage());
         }
     }
 }

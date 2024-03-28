@@ -1,5 +1,6 @@
 package com.vrpigroup.usermodule.dto;
 
+import com.vrpigroup.usermodule.annotations.email.ValidEmail;
 import com.vrpigroup.usermodule.annotations.passwordAnnotation.Password;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
@@ -14,14 +15,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class LoginDto {
 
-    @NotBlank(message = "Email is mandatory")
-    @Schema(name="email",description = "Email Id",example = "officialkanhaiya121@gmail.com")
-    @Email
+    @Schema(description = "Email Id", example = "example@example.com")
+    @NotBlank(message = "Email cannot be blank")
+    @ValidEmail(message = "Invalid email format")
     private String email;
-    @Schema(name = "password", description = "Password", example = "Kanhaiya@123")
-    @NotBlank(message = "password is mandatory")
-    @Password
-    private String password;
 
-
+    @Schema(description = "Password", example = "ABc@3214", required = true)
+    @NotBlank(message = "Password cannot be blank")
+    @Password(message = "Invalid password format")
+    private String createPassword;
 }

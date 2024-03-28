@@ -28,7 +28,6 @@ public class UserEntity {
     @Schema(name = "Last Name", description = "Full Name", example = "Aman Raj", required = true)
     private String lastName;
 
-
     @Schema(name = "fathersName", description = "Father's Name", example = "Raj Kumar", required = true)
     @Size(min = 3, max = 50, message = "Father's name must be between 3 and 50 characters")
     private String fathersName;

@@ -8,11 +8,13 @@ import com.vrpigroup.usermodule.exception.UserNotFoundException;
 import com.vrpigroup.usermodule.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,26 +48,6 @@ public class UserController {
         this.userModuleService = userModuleService;
     }
 
-    @Operation(
-            summary = "Get All User",
-            description = "Get all users"
-    )
-    @GetMapping("/all")
-    public List<UserEntity> getAllUser() {
-        log.info("UserController:getAllUser {1} Getting all users");
-        return userModuleService.getAllUser();
-    }
-
-    @Operation(
-            summary = "Get User By Id",
-            description = "Get user by id")
-    @GetMapping("/{id}")
-    public Optional<UserEntity> getUserById(@PathVariable Long id) {
-        log.info("UserController:getUserById {} are called with : ", id);
-        return Optional.ofNullable(userModuleService.getUserById(id).orElseThrow(
-                () -> new UserNotFoundException("User not found for ID: " + id)
-        ));
-    }
 
     @Operation(
             summary = "Create User",
@@ -118,10 +100,21 @@ public class UserController {
             summary = "Login User",
             description = "Login user")
     @PostMapping("/login")
-    public UserDetailsDto loginUser(@Validated @RequestBody LoginDto loginDto) {
-     UserDetailsDto user=null;
-     log.info("UserController:loginUser - Attempting login for user: {}", loginDto.getEmail());
-         return userModuleService.loginUser(loginDto);
+    public ResponseEntity<UserDetailsDto> loginUser(@Validated @RequestBody LoginDto loginDto) {
+        UserDetailsDto user=null;
+        try {
+            log.info("UserController:loginUser - Attempting login for user: {}", loginDto.getEmail());
+            user = userModuleService.loginUser(loginDto);
+            if (user != null) {
+                return new ResponseEntity<>(user,HttpStatus.OK);
+            } else {
+                log.warn("UserController:loginUser - Invalid credentials for user");
+                return new ResponseEntity<>(user,HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (Exception e) {
+            log.error("UserController:loginUser - Error during login for user: {}", loginDto.getEmail(), e);
+            return new ResponseEntity<>(user,HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /*@Operation(

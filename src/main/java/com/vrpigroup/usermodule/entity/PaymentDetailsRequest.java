@@ -20,9 +20,9 @@ public class PaymentDetailsRequest {
 
     private Long userId;
     private Long courseId;
-    private String paymentLinkId;
-    private String paymentLinkUrl;
-    private Long OrderId;
+    private String paymentId;
+    private Long amount;
+    private String signature;
 
     public PaymentDetailsRequest() {
 

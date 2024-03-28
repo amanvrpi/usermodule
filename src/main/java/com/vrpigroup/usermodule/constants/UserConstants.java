@@ -106,6 +106,7 @@ public class UserConstants {
     public static final String USER_DOCUMENTS_UPDATED_SUCCESSFULLY = "User documents updated successfully";
     public static final String FORGOT_PASSWORD_SUCCESS = "Forgot password success";
     public static final String FAILED_TO_PROCESS_FORGOT_PASSWORD = "Failed to process forgot password";
+    public static final Object ACCOUNT_NOT_VERIFIED = "Account not verified";
     ;
     ;
 }

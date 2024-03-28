@@ -112,7 +112,7 @@ public class CourseService {
                 if (paymentLinkResponse != null) {
                     Map<String, String> responseBody = new HashMap<>();
                     responseBody.put("paymentLinkUrl", paymentLinkResponse);
-                    responseBody.put("paymentLinkId", "");
+                    responseBody.put("paymentLinkId", "paymentLinkId");
                     return ResponseEntity.ok(responseBody);
                 } else {
                     throw new RuntimeException("Payment link response is null");

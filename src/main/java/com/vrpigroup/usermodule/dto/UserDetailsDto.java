@@ -17,6 +17,7 @@ public class UserDetailsDto {
 
     //    user entity data
     private UserDto userDto;
+    private ResponseDto responseDto;
 
     //    courses data from course entity
     List<EnrollCourseListDto> courseList;
@@ -26,5 +27,10 @@ public class UserDetailsDto {
 
     private String statusMessage;
 
-
+    public UserDetailsDto(UserDto userDto, List<EnrollCourseListDto> enrolledCourses, EducationDetailsDto educationDetailsDto, String httpStatusOk) {
+        this.userDto = userDto;
+        this.courseList = enrolledCourses;
+        this.educationDetails = educationDetailsDto;
+        this.statusMessage = httpStatusOk;
+    }
 }

@@ -4,20 +4,19 @@ import com.vrpigroup.usermodule.annotations.email.EmailValidationServiceImpl;
 import com.vrpigroup.usermodule.constants.UserConstants;
 import com.vrpigroup.usermodule.dto.*;
 import com.vrpigroup.usermodule.entity.*;
+import com.vrpigroup.usermodule.exception.EmailNotFoundException;
+import com.vrpigroup.usermodule.exception.InvalidPasswordException;
 import com.vrpigroup.usermodule.exception.UserAlreadyExistException;
-import com.vrpigroup.usermodule.exception.UserNotFoundException;
 import com.vrpigroup.usermodule.mapper.UserMapper;
 import com.vrpigroup.usermodule.repo.ContactUsRepo;
 import com.vrpigroup.usermodule.repo.EducationDetailsRepo;
 import com.vrpigroup.usermodule.repo.EnrollmentRepository;
 import com.vrpigroup.usermodule.repo.UserRepository;
-//import com.vrpigroup.usermodule.security.SecurityConfig;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-//import org.springframework.context.annotation.Lazy;
-//import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -57,15 +56,7 @@ public class UserService {
         }
     }
 
-    public Optional<UserEntity> getUserById(Long id) {
-        try {
-            return userModuleRepository.findById(id);
 
-        } catch (Exception e) {
-            logger.error("Error while fetching user by ID: {}", id, e);
-            return Optional.empty();
-        }
-    }
 
     public UserDto createUser(UserDto userDto,MultipartFile profilePhoto,
                               MultipartFile aadharFront,MultipartFile aadharBack) {
@@ -107,17 +98,6 @@ public class UserService {
     }
 
 
-
-    /*public UserEntity updateUser(Long id, UserEntity updatedUserModule) {
-        if (userModuleRepository.existsById(id)) {
-            updatedUserModule.setId(id);
-            return userModuleRepository.save(updatedUserModule);
-        } else {
-            logger.warn("Failed to update user. User not found for ID: {}", id);
-            return null;
-        }
-    }*/
-
     public void deleteUser(Long id) {
         try {
             userModuleRepository.deleteById(id);
@@ -129,17 +109,15 @@ public class UserService {
 
     public UserDetailsDto loginUser(LoginDto userModule) {
         Optional<UserEntity> userByEmail = userModuleRepository.findByEmail(userModule.getEmail());
-        if(userByEmail == null){
-            throw new UserNotFoundException("User with email not found");
+        if(userByEmail.isEmpty()){
+            throw new EmailNotFoundException("User with email not found");
         }
-        if (userByEmail.isPresent() && verifyLogin(userByEmail.get(), userModule)) {
+        if(verifyActive(userByEmail.get()) && verifyPassword(userByEmail.get(), userModule)){
             UserEntity user = userByEmail.get();
             Long userId = user.getId();
             Optional<EducationDetails> educationDetails = educationDetailsRepo.findByUserId(userId);
-
             // Fetch enrollments based on the user ID dynamically
             List<EnrollmentEntity> enrollments = enrollmentRepository.findByUserId(userId);
-
             // Map enrollments to DTOs
             List<EnrollCourseListDto> enrolledCourses = enrollments.stream()
                     .map(enrollment -> {
@@ -151,7 +129,6 @@ public class UserService {
                         return dto;
                     })
                     .collect(Collectors.toList());
-
             // Create UserDetailsDto based on fetched data
             UserDetailsDto userDetailsDto;
             userDetailsDto = educationDetails.map(details -> new UserDetailsDto(
@@ -162,29 +139,28 @@ public class UserService {
             )).orElseGet(() -> new UserDetailsDto(
                     UserMapper.userToUserDto(user, new UserDto()),
                     enrolledCourses,
-                    null, // No education details available
+                    null,
                     UserConstants.HttpStatus_OK
             ));
             return userDetailsDto;
-        }else {
-
         }
-        logger.warn("Unsuccessful login attempt for email: {}", userModule.getEmail());
-
         return null;
     }
 
-
-    private boolean verifyLogin(UserEntity user, LoginDto userModule) {
-        if ( user.isActive()
-                && passwordEncoder.matches(userModule.getPassword(), user.getCreatePassword())) {
+    private boolean verifyActive(UserEntity user) {
+        if (user.isActive()) {
             return true;
+        } else {
+            return false;
         }
-        return false;
     }
 
-    public boolean verifyEncryptedPassword(String password, String hashedPassword) {
-        return passwordEncoder.matches(password, hashedPassword);
+    private boolean verifyPassword(UserEntity user, LoginDto userModule) {
+        if (passwordEncoder.matches(userModule.getCreatePassword(), user.getCreatePassword())) {
+            return true;
+        }else {
+            throw new InvalidPasswordException(UserConstants.INVALID_CREDENTIALS);
+        }
     }
 
     public void contactUs(ContactUs contactUs) {

@@ -10,6 +10,7 @@ import com.vrpigroup.usermodule.service.CourseService;
 import com.vrpigroup.usermodule.service.PaymentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -44,6 +45,7 @@ public class EnrollController {
 
     // Create a new course
     @PostMapping("/create-course")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CourseEntity> createCourse(@RequestBody CourseEntity courseEntity){
         CourseEntity createdCourse = courseService.createCourse(courseEntity);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCourse);
@@ -51,6 +53,7 @@ public class EnrollController {
 
     // Update course details by ID
     @PutMapping("/update-course/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> updateCourse(@PathVariable Long id) {
         String result = courseService.updateCourse(id);
         return ResponseEntity.ok(result);
@@ -58,6 +61,7 @@ public class EnrollController {
 
     // Delete course by ID
     @DeleteMapping("/delete-course/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CourseEntity> deleteCourse(@PathVariable Long id) {
         Optional<CourseEntity> deletedCourse = courseService.deleteCourse(id);
         return deletedCourse.map(course -> ResponseEntity.ok().body(course))
@@ -66,6 +70,7 @@ public class EnrollController {
 
     // Get details of all courses
     @GetMapping("/all-courses")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> getAllCourses() {
         String allCourses = courseService.getAllCourses().toString();
         return ResponseEntity.ok(allCourses);
@@ -86,14 +91,13 @@ public class EnrollController {
     //verify-payment
     @GetMapping("/verify-payment")
     public String verifyPayment(
-            @RequestParam("Payment Id") String paymentId,
-            @RequestParam("Razorpay Order Id") String orderId,
-            @RequestParam("Amount") int amount,
-            @RequestParam("Order Id") Long orderIdParam,
-            @RequestParam("Contact") Long Contact,
+            @RequestParam("razorpay_payment_id") String paymentId,
+            @RequestParam("amount") int amount,
+            @RequestParam("userId") Long userId,
             @RequestParam("courseId") Long courseId,
-            @RequestParam("paymentId") String paymentLinkId){
-        Payment payment = paymentService.verifyPayment(paymentId, orderId, amount, orderIdParam, Contact, courseId, paymentLinkId);
+            @RequestParam("razorpay_signature") String signature
+    ){
+        Payment payment = paymentService.verifyPayment(paymentId, amount, userId, courseId, signature);
         if (payment != null) {
             return "Payment successful";
         } else {
@@ -101,16 +105,3 @@ public class EnrollController {
         }
     }
 }
-
-/*
-* try {
-            Payment payment = razorpay.payments.fetch(paymentId);
-            Order order = razorpay.orders.fetch(orderId);
-            if(payment.get("amount").equals(amount) && order.get("amount").equals(amount)){
-                return "Payment successfully verified.";
-            } else {
-                return "Payment verification failed: Amount mismatch.";
-            }
-        } catch (RazorpayException e) {
-            return "Razorpay API error: " + e.getMessage();
-        }*/

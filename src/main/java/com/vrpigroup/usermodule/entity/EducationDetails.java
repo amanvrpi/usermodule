@@ -65,6 +65,7 @@ public class EducationDetails {
     @Schema(description = "Grade obtained", example = "A+")
     private String grade;
 
+
     @Column(name = "user_id", nullable = false)
     @Schema(description = "ID of the associated user", example = "1")
     private Long userId;

@@ -1,5 +1,6 @@
 package com.vrpigroup.usermodule.admin;
 
+import com.vrpigroup.usermodule.entity.InstructorEntity;
 import com.vrpigroup.usermodule.entity.UserEntity;
 import com.vrpigroup.usermodule.exception.UserNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,5 +57,21 @@ public class AdminController {
     public List<UserEntity> getAllUser() {
         log.info("UserController:getAllUser {1} Getting all users");
         return adminService.getAllUser();
+    }
+    @PostMapping("/instructor-add")
+    public ResponseEntity<String> saveInstructor(@RequestBody InstructorEntity instructorEntity) {
+        log.info("AdminController:saveInstructor {1} Adding instructor");
+        return ResponseEntity.ok(adminService.saveInstructor(instructorEntity));
+    }
+//    This is under work by the team
+    @PutMapping ("/instructor-update/{id}")
+    public ResponseEntity<InstructorEntity> updateInstructor(@RequestBody InstructorEntity instructorEntity, @PathVariable Long id) {
+        log.info("AdminController:updateInstructor {1} Updating instructor");
+        return adminService.updateInstructor(instructorEntity, id);
+    }
+    @GetMapping("/instructor-all")
+    public List<InstructorEntity> getAllInstructor() {
+        log.info("AdminController:getAllInstructor {1} Getting all instructors");
+        return adminService.getAllInstructor();
     }
 }

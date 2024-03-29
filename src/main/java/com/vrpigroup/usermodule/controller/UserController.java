@@ -3,18 +3,14 @@ package com.vrpigroup.usermodule.controller;
 import com.vrpigroup.usermodule.constants.UserConstants;
 import com.vrpigroup.usermodule.dto.*;
 import com.vrpigroup.usermodule.entity.ContactUs;
-import com.vrpigroup.usermodule.entity.UserEntity;
-import com.vrpigroup.usermodule.exception.UserNotFoundException;
 import com.vrpigroup.usermodule.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,9 +33,10 @@ import java.util.Optional;
 
 @Log4j2
 @RestController
+@CrossOrigin(origins = "*")
 @Validated
 @RequestMapping("/vrpi-user")
-@CrossOrigin(origins = "*")
+
 public class UserController {
 
     private final UserService userModuleService;

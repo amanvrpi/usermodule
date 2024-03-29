@@ -10,9 +10,7 @@ import com.vrpigroup.usermodule.service.CourseService;
 import com.vrpigroup.usermodule.service.PaymentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Optional;
 
 @RestController
@@ -45,7 +43,6 @@ public class EnrollController {
 
     // Create a new course
     @PostMapping("/create-course")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CourseEntity> createCourse(@RequestBody CourseEntity courseEntity){
         CourseEntity createdCourse = courseService.createCourse(courseEntity);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCourse);
@@ -53,7 +50,6 @@ public class EnrollController {
 
     // Update course details by ID
     @PutMapping("/update-course/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> updateCourse(@PathVariable Long id) {
         String result = courseService.updateCourse(id);
         return ResponseEntity.ok(result);
@@ -61,7 +57,6 @@ public class EnrollController {
 
     // Delete course by ID
     @DeleteMapping("/delete-course/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CourseEntity> deleteCourse(@PathVariable Long id) {
         Optional<CourseEntity> deletedCourse = courseService.deleteCourse(id);
         return deletedCourse.map(course -> ResponseEntity.ok().body(course))
@@ -70,7 +65,6 @@ public class EnrollController {
 
     // Get details of all courses
     @GetMapping("/all-courses")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> getAllCourses() {
         String allCourses = courseService.getAllCourses().toString();
         return ResponseEntity.ok(allCourses);

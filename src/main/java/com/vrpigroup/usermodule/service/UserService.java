@@ -286,8 +286,12 @@ public class UserService {
                     ))
                     .collect(Collectors.toList());
 
+            // Fetch education details for the user
+            Optional<EducationDetails> optionalEducationDetails = educationDetailsRepo.findByUserId(userId);
+            EducationDetailsDto educationDetailsDto = optionalEducationDetails.map(UserMapper::educationDetailsToEducationDetailsDto).orElse(null);
+
             // Create UserDetailsDto with mapped data
-            return new UserDetailsDtoById(userDto, courseList, null, UserConstants.HttpStatus_OK);
+            return new UserDetailsDtoById(userDto, courseList, educationDetailsDto, UserConstants.HttpStatus_OK);
         } else {
             // If user is not found, you might want to handle this case appropriately
             return null; // Or throw an exception, or return a default DTO, etc.

@@ -267,54 +267,39 @@ public class UserService {
     }
 
 
-    public UserDetailsDto getUserDetails(Long userId) {
-//        Optional<UserEntity> user = userModuleRepository.findById(userId);
-//        if (user.isPresent()) {
-//            UserEntity userEntity = user.get();
-//            UserDto userDto = new UserDto();
-//            userDto.setFirstName(userEntity.getFirstName());
-//            userDto.setLastName(userEntity.getLastName());
-//            userDto.setPhoneNumber(userEntity.getPhoneNumber());
-//            userDto.setEmail(userEntity.getEmail());
-//            return ResponseEntity.ok(userDto);
-//        } else {
-//            return ResponseEntity.notFound().build();
-//        }
-//    }
+    public UserDetailsDtoById getUserDetails(Long userId) {
         Optional<UserEntity> userByEmail = userModuleRepository.findById(userId);
-        if(userByEmail.isEmpty()){
+        if(userByEmail.isEmpty()) {
             throw new EmailNotFoundException("User with userId not found");
         }
-            UserEntity user = userByEmail.get();
 
-            Optional<EducationDetails> educationDetails = educationDetailsRepo.findByUserId(userId);
-            // Fetch enrollments based on the user ID dynamically
-            List<EnrollmentEntity> enrollments = enrollmentRepository.findByUserId(userId);
-            // Map enrollments to DTOs
-            List<EnrollCourseListDto> enrolledCourses = enrollments.stream()
-                    .map(enrollment -> {
-                        EnrollCourseListDto dto = new EnrollCourseListDto();
-                        dto.setId(enrollment.getCourse().getId());
-                        dto.setCouseId(enrollment.getCourse().getLabel());
-                        dto.setCourseName(enrollment.getCourse().getCourseName());
-                        // Set any other fields as needed
-                        return dto;
-                    })
-                    .collect(Collectors.toList());
-            // Create UserDetailsDto based on fetched data
-            UserDetailsDto userDetailsDto;
-            userDetailsDto = educationDetails.map(details -> new UserDetailsDto(
-                    UserMapper.userToUserDto(user, new UserDto()),
-                    enrolledCourses,
-                    UserMapper.educationDetailsToEducationDetailsDto(details),
-                    UserConstants.HttpStatus_OK
-            )).orElseGet(() -> new UserDetailsDto(
-                    UserMapper.userToUserDto(user, new UserDto()),
-                    enrolledCourses,
-                    null,
-                    UserConstants.HttpStatus_OK
-            ));
-            return userDetailsDto;
+        UserEntity user = userByEmail.get();
+
+        Optional<EducationDetails> educationDetails = educationDetailsRepo.findByUserId(userId);
+
+        // Fetch enrollments based on the user ID dynamically
+        List<EnrollmentEntity> enrollments = enrollmentRepository.findByUserId(userId);
+        // Map enrollments to DTOs
+        List<EnrollCourseListDto> enrolledCourses = enrollments.stream()
+                .map(enrollment -> {
+                    EnrollCourseListDto dto = new EnrollCourseListDto();
+                    dto.setId(enrollment.getCourse().getId());
+                    dto.setCouseId(enrollment.getCourse().getLabel());
+                    dto.setCourseName(enrollment.getCourse().getCourseName());
+                    // Set any other fields as needed
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        // Create UserDetailsDto based on fetched data
+        UserDetailsDtoById userDetailsDto = new UserDetailsDtoById(
+                user,
+                enrolledCourses,
+                educationDetails.map(UserMapper::educationDetailsToEducationDetailsDto).orElse(null),
+                UserConstants.HttpStatus_OK
+        );
+
+        return userDetailsDto;
     }
 
     public void updateUserDocuments(Long userId, MultipartFile profilePhoto, MultipartFile aadharFront, MultipartFile aadharBack, MultipartFile incomeCert) {

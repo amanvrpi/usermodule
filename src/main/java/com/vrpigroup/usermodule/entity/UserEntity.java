@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +56,7 @@ public class UserEntity {
     private String email;
 
     @Schema(name = "Create Password", description = "Password", example = "ABc@3214", required = true)
-
+@JsonIgnore
     private String createPassword;
 
     @Schema(name = "occupation", description = "Occupation", example = "Student", required = true)
@@ -87,9 +89,9 @@ public class UserEntity {
     @Schema(name = "role", description = "Roles", example = "USER")
     @ElementCollection
     private List<String> roles = new ArrayList<>();
-
+@JsonIgnore
     public boolean active;
-
+@JsonIgnore
     private String otp;
 
 }

@@ -2,9 +2,12 @@ package com.vrpigroup.usermodule.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
 @Entity
 public class CourseEntity {
 
@@ -12,6 +15,10 @@ public class CourseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Course_ID")
     private Long id;
+
+    public CourseEntity(Long id) {
+        this.id = id;
+    }
 
     @Schema(name = "Course Name", description = "Name of the Course", example = "Java Programming", required = true)
     private String courseName;

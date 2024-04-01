@@ -267,18 +267,34 @@ public class UserService {
     }
 
 
-    public ResponseEntity<UserDto> getUserDetails(Long userId) {
-        Optional<UserEntity> user = userModuleRepository.findById(userId);
-        if (user.isPresent()) {
-            UserEntity userEntity = user.get();
-            UserDto userDto = new UserDto();
-            userDto.setFirstName(userEntity.getFirstName());
-            userDto.setLastName(userEntity.getLastName());
-            userDto.setPhoneNumber(userEntity.getPhoneNumber());
-            userDto.setEmail(userEntity.getEmail());
-            return ResponseEntity.ok(userDto);
+    public UserDetailsDtoById getUserDetails(Long userId) {
+        Optional<UserEntity> optionalUser = userModuleRepository.findById(userId);
+        if (optionalUser.isPresent()) {
+            UserEntity userEntity = optionalUser.get();
+            DocResponseByUserGetId userDto = UserMapper.userToDocResponseByUserGetId(userEntity, new DocResponseByUserGetId());
+
+            // Fetch enrollments for the user
+            List<EnrollmentEntity> enrollments = enrollmentRepository.findByUserId(userId);
+
+            // Map enrollments to EnrollCourseListDto
+            List<EnrollCourseListDto> courseList = enrollments.stream()
+                    .map(enrollment -> new EnrollCourseListDto(
+                            enrollment.getCourse().getId(),
+                            enrollment.getCourse().getLabel(),
+                            enrollment.getCourse().getCourseName()
+                            // Add other properties as needed
+                    ))
+                    .collect(Collectors.toList());
+
+            // Fetch education details for the user
+            Optional<EducationDetails> optionalEducationDetails = educationDetailsRepo.findByUserId(userId);
+            EducationDetailsDto educationDetailsDto = optionalEducationDetails.map(UserMapper::educationDetailsToEducationDetailsDto).orElse(null);
+
+            // Create UserDetailsDto with mapped data
+            return new UserDetailsDtoById(userDto, courseList, educationDetailsDto, UserConstants.HttpStatus_OK);
         } else {
-            return ResponseEntity.notFound().build();
+            // If user is not found, you might want to handle this case appropriately
+            return null; // Or throw an exception, or return a default DTO, etc.
         }
     }
 

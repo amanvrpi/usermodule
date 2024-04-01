@@ -21,11 +21,9 @@ public class EducationDetailsController {
         String result = educationDetailsService.saveEducationDetails(educationDetails, userId);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
-
     @GetMapping("/get-education-details/{userId}")
     public ResponseEntity<EducationDetails> getEducationDetails(@PathVariable Long userId) {
         EducationDetails educationDetails = educationDetailsService.getEducationDetails(userId);
         return new ResponseEntity<>(educationDetails, HttpStatus.OK);
     }
-
 }

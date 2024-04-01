@@ -3,18 +3,14 @@ package com.vrpigroup.usermodule.controller;
 import com.vrpigroup.usermodule.constants.UserConstants;
 import com.vrpigroup.usermodule.dto.*;
 import com.vrpigroup.usermodule.entity.ContactUs;
-import com.vrpigroup.usermodule.entity.UserEntity;
-import com.vrpigroup.usermodule.exception.UserNotFoundException;
 import com.vrpigroup.usermodule.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,7 +24,7 @@ import java.util.Optional;
  * @Date: 26/03/2024
  * @Description: This class is used to handle all user related operations
  * like create, update, delete, get user, login, verify account, contact us, update user profile and details
- * */
+ */
 
 @Tag(
         name = "User",
@@ -37,9 +33,10 @@ import java.util.Optional;
 
 @Log4j2
 @RestController
+@CrossOrigin(origins = "*")
 @Validated
 @RequestMapping("/vrpi-user")
-@CrossOrigin(origins = "*")
+
 public class UserController {
 
     private final UserService userModuleService;
@@ -60,7 +57,7 @@ public class UserController {
 
     ) {
         log.info("UserController:createUser - Creating user account for email: {}", userModule.getEmail());
-        var createdUser = userModuleService.createUser(userModule,profilePhoto, aadharFront, aadharBack);
+        var createdUser = userModuleService.createUser(userModule, profilePhoto, aadharFront, aadharBack);
         if (createdUser != null) {
             log.info("UserController:createUser - User account created successfully for email: {}", userModule.getEmail());
             return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseDto(UserConstants.CREATED_201, UserConstants.CREATED_MESSAGE));
@@ -101,19 +98,19 @@ public class UserController {
             description = "Login user")
     @PostMapping("/login")
     public ResponseEntity<UserDetailsDto> loginUser(@Validated @RequestBody LoginDto loginDto) {
-        UserDetailsDto user=null;
+        UserDetailsDto user = null;
         try {
             log.info("UserController:loginUser - Attempting login for user: {}", loginDto.getEmail());
             user = userModuleService.loginUser(loginDto);
             if (user != null) {
-                return new ResponseEntity<>(user,HttpStatus.OK);
+                return new ResponseEntity<>(user, HttpStatus.OK);
             } else {
                 log.warn("UserController:loginUser - Invalid credentials for user");
-                return new ResponseEntity<>(user,HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity<>(user, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (Exception e) {
             log.error("UserController:loginUser - Error during login for user: {}", loginDto.getEmail(), e);
-            return new ResponseEntity<>(user,HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(user, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -165,7 +162,7 @@ public class UserController {
     public ResponseEntity<UpdateUserDto> updateUser(
             @PathVariable Long id,
             @RequestBody UpdateUserDto user
-    ){
+    ) {
         try {
             log.info("UserController:updateUser - Updating user details and profile photo for user ID: {}", id);
             var updatedUser = userModuleService.updateUserProfileAndDetails(id, user);
@@ -257,20 +254,34 @@ public class UserController {
 
     // Get user details by userId
     @GetMapping("/get-user-details/{userId}")
-public ResponseEntity<UserDto> getUserDetails(@PathVariable Long userId) {
+    public ResponseEntity<UserDetailsDtoById> getUserDetails(@PathVariable Long userId) {
+//        try {
+//            log.info("UserController:getUserDetails - Getting user details for user ID: {}", userId);
+//            var userDetails = userModuleService.getUserDetails(userId);
+//            if (userDetails != null) {
+//                log.info("UserController:getUserDetails - User details fetched successfully for user ID: {}", userId);
+//                return ResponseEntity.ok(userDetails.getBody());
+//            } else {
+//                log.warn("UserController:getUserDetails - Failed to fetch user details for user ID: {}", userId);
+//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//            }
+//        } catch (Exception e) {
+//            log.error("UserController:getUserDetails - Error while fetching user details for user ID: {}", userId, e);
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//        }
+//    }
         try {
             log.info("UserController:getUserDetails - Getting user details for user ID: {}", userId);
-            var userDetails = userModuleService.getUserDetails(userId);
-            if (userDetails != null) {
-                log.info("UserController:getUserDetails - User details fetched successfully for user ID: {}", userId);
-                return ResponseEntity.ok(userDetails.getBody());
+            var user = userModuleService.getUserDetails(userId);
+            if (user != null) {
+                return new ResponseEntity<>(user, HttpStatus.OK);
             } else {
                 log.warn("UserController:getUserDetails - Failed to fetch user details for user ID: {}", userId);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                return new ResponseEntity<>(user, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (Exception e) {
             log.error("UserController:getUserDetails - Error while fetching user details for user ID: {}", userId, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

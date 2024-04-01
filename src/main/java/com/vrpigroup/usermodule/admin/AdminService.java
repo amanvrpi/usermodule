@@ -1,11 +1,14 @@
 package com.vrpigroup.usermodule.admin;
 
+import com.vrpigroup.usermodule.entity.InstructorEntity;
 import com.vrpigroup.usermodule.entity.UserEntity;
 import com.vrpigroup.usermodule.repo.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -17,6 +20,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class AdminService {
 
+    private final InstructorRepository instructorRepository;
     private final ContactUsRepo contactUsRepo;
     private final CourseRepository courseRepository;
     private final EducationDetailsRepo educationDetailsRepo;
@@ -34,6 +38,26 @@ public class AdminService {
         }
     }
 
+    public InstructorEntity getInstructorById(Long id) {
+        try {
+            Optional<InstructorEntity> instructorEntity = instructorRepository.findById(id);
+            return instructorEntity.orElse(null);
+        } catch (Exception e) {
+            logger.error("Error while fetching instructor by ID: {}", id, e);
+            return null;
+        }
+    }
+
+    public String saveInstructor(InstructorEntity instructorEntity) {
+        try {
+            instructorRepository.save(instructorEntity);
+            return "Instructor saved successfully";
+        } catch (Exception e) {
+            logger.error("Error while saving instructor", e);
+            return "Error while saving instructor";
+        }
+    }
+
     public UserEntity getUserById(Long id) {
         try {
             return userRepository.findById(id).get();
@@ -45,5 +69,38 @@ public class AdminService {
 
     public void login(AdminLoginDto adminLoginDto) {
 
+    }
+
+
+
+
+    public List<InstructorEntity> getAllInstructor() {
+        try {
+            return instructorRepository.findAll();
+        } catch (Exception e) {
+            logger.error("Error while fetching all instructors", e);
+            return Collections.emptyList();
+        }
+    }
+
+    public ResponseEntity<InstructorEntity> updateInstructor(InstructorEntity instructorEntity, Long id) {
+        try {
+            Optional<InstructorEntity> optionalInstructorEntity = instructorRepository.findById(id);
+            if (optionalInstructorEntity.isPresent()) {
+                InstructorEntity updatedInstructorEntity = optionalInstructorEntity.get();
+                updatedInstructorEntity.setFirstName(instructorEntity.getFirstName());
+                updatedInstructorEntity.setLastName(instructorEntity.getLastName());
+                updatedInstructorEntity.setPhoneNumber(instructorEntity.getPhoneNumber());
+                updatedInstructorEntity.setAddress(instructorEntity.getAddress());
+                updatedInstructorEntity.setEmail(instructorEntity.getEmail());
+                instructorRepository.save(updatedInstructorEntity);
+                return new ResponseEntity<>(updatedInstructorEntity, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            logger.error("Error while updating instructor by ID: {}", id, e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

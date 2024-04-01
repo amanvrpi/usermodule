@@ -13,8 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
-import static com.vrpigroup.usermodule.service.PaymentService.paymentLinkUrl;
-
 @RestController
 @RequestMapping("/course")
 public class EnrollController {

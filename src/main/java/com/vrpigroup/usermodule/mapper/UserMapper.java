@@ -1,5 +1,6 @@
 package com.vrpigroup.usermodule.mapper;
 
+import com.vrpigroup.usermodule.dto.DocResponseByUserGetId;
 import com.vrpigroup.usermodule.dto.EducationDetailsDto;
 import com.vrpigroup.usermodule.dto.UpdateUserDto;
 import com.vrpigroup.usermodule.dto.UserDto;
@@ -72,6 +73,25 @@ public class UserMapper {
      }
     }
 
+    public static DocResponseByUserGetId userToDocResponseByUserGetId(UserEntity userEntity, DocResponseByUserGetId userDto) {
+        userDto.setId(userEntity.getId());
+        userDto.setFirstName(userEntity.getFirstName());
+        userDto.setLastName(userEntity.getLastName());
+        userDto.setFathersName(userEntity.getFathersName());
+        userDto.setGender(userEntity.getGender());
+        userDto.setDateOfBirth(userEntity.getDateOfBirth());
+        userDto.setPhoneNumber(userEntity.getPhoneNumber());
+        userDto.setAddress(userEntity.getAddress());
+        userDto.setEmail(userEntity.getEmail());
+        userDto.setCreatePassword(userEntity.getCreatePassword());
+        userDto.setOccupation(userEntity.getOccupation());
+        userDto.setAadharCardNumber(userEntity.getAadharCardNumber());
+        userDto.setIncomeCert(userEntity.getIncomeCert() != null ? "present" : null);
+        userDto.setProfilePic(userEntity.getProfilePic() != null ? "present" : null);
+        userDto.setAadharBack(userEntity.getAadharBack() != null ? "present" : null);
+        userDto.setAadharFront(userEntity.getAadharFront() != null ? "present" : null);
+        return userDto;
+    }
 
     public UpdateUserDto updateUserProfileAndDetails(UserEntity userEntity, UpdateUserDto updatedUser) {
         updatedUser.setFirstName(userEntity.getFirstName());

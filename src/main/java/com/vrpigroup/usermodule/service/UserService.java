@@ -268,38 +268,30 @@ public class UserService {
 
 
     public UserDetailsDtoById getUserDetails(Long userId) {
-        Optional<UserEntity> userByEmail = userModuleRepository.findById(userId);
-        if(userByEmail.isEmpty()) {
-            throw new EmailNotFoundException("User with userId not found");
+        Optional<UserEntity> optionalUser = userModuleRepository.findById(userId);
+        if (optionalUser.isPresent()) {
+            UserEntity userEntity = optionalUser.get();
+            DocResponseByUserGetId userDto = UserMapper.userToDocResponseByUserGetId(userEntity, new DocResponseByUserGetId());
+
+            // Fetch enrollments for the user
+            List<EnrollmentEntity> enrollments = enrollmentRepository.findByUserId(userId);
+
+            // Map enrollments to EnrollCourseListDto
+            List<EnrollCourseListDto> courseList = enrollments.stream()
+                    .map(enrollment -> new EnrollCourseListDto(
+                            enrollment.getCourse().getId(),
+                            enrollment.getCourse().getLabel(),
+                            enrollment.getCourse().getCourseName()
+                            // Add other properties as needed
+                    ))
+                    .collect(Collectors.toList());
+
+            // Create UserDetailsDto with mapped data
+            return new UserDetailsDtoById(userDto, courseList, null, UserConstants.HttpStatus_OK);
+        } else {
+            // If user is not found, you might want to handle this case appropriately
+            return null; // Or throw an exception, or return a default DTO, etc.
         }
-
-        UserEntity user = userByEmail.get();
-
-        Optional<EducationDetails> educationDetails = educationDetailsRepo.findByUserId(userId);
-
-        // Fetch enrollments based on the user ID dynamically
-        List<EnrollmentEntity> enrollments = enrollmentRepository.findByUserId(userId);
-        // Map enrollments to DTOs
-        List<EnrollCourseListDto> enrolledCourses = enrollments.stream()
-                .map(enrollment -> {
-                    EnrollCourseListDto dto = new EnrollCourseListDto();
-                    dto.setId(enrollment.getCourse().getId());
-                    dto.setCouseId(enrollment.getCourse().getLabel());
-                    dto.setCourseName(enrollment.getCourse().getCourseName());
-                    // Set any other fields as needed
-                    return dto;
-                })
-                .collect(Collectors.toList());
-
-        // Create UserDetailsDto based on fetched data
-        UserDetailsDtoById userDetailsDto = new UserDetailsDtoById(
-                user,
-                enrolledCourses,
-                educationDetails.map(UserMapper::educationDetailsToEducationDetailsDto).orElse(null),
-                UserConstants.HttpStatus_OK
-        );
-
-        return userDetailsDto;
     }
 
     public void updateUserDocuments(Long userId, MultipartFile profilePhoto, MultipartFile aadharFront, MultipartFile aadharBack, MultipartFile incomeCert) {

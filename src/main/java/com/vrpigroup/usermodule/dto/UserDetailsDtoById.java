@@ -17,7 +17,7 @@ import java.util.List;
 public class UserDetailsDtoById {
 
     //    user entity data
-    private UserEntity user;
+    private DocResponseByUserGetId user;
     private ResponseDto responseDto;
 
     //    courses data from course entity
@@ -28,7 +28,7 @@ public class UserDetailsDtoById {
 
     private String statusMessage;
 
-    public UserDetailsDtoById(UserEntity user, List<EnrollCourseListDto> enrolledCourses, EducationDetailsDto educationDetailsDto, String httpStatusOk) {
+    public UserDetailsDtoById(DocResponseByUserGetId user, List<EnrollCourseListDto> enrolledCourses, EducationDetailsDto educationDetailsDto, String httpStatusOk) {
         this.user = user;
         this.courseList = enrolledCourses;
         this.educationDetails = educationDetailsDto;

@@ -254,20 +254,34 @@ public class UserController {
 
     // Get user details by userId
     @GetMapping("/get-user-details/{userId}")
-public ResponseEntity<UserDto> getUserDetails(@PathVariable Long userId) {
+public ResponseEntity<UserDetailsDto> getUserDetails(@PathVariable Long userId) {
+//        try {
+//            log.info("UserController:getUserDetails - Getting user details for user ID: {}", userId);
+//            var userDetails = userModuleService.getUserDetails(userId);
+//            if (userDetails != null) {
+//                log.info("UserController:getUserDetails - User details fetched successfully for user ID: {}", userId);
+//                return ResponseEntity.ok(userDetails.getBody());
+//            } else {
+//                log.warn("UserController:getUserDetails - Failed to fetch user details for user ID: {}", userId);
+//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//            }
+//        } catch (Exception e) {
+//            log.error("UserController:getUserDetails - Error while fetching user details for user ID: {}", userId, e);
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//        }
+//    }
         try {
             log.info("UserController:getUserDetails - Getting user details for user ID: {}", userId);
-            var userDetails = userModuleService.getUserDetails(userId);
-            if (userDetails != null) {
-                log.info("UserController:getUserDetails - User details fetched successfully for user ID: {}", userId);
-                return ResponseEntity.ok(userDetails.getBody());
+          var  user = userModuleService.getUserDetails(userId);
+            if (user != null) {
+                return new ResponseEntity<>(user,HttpStatus.OK);
             } else {
                 log.warn("UserController:getUserDetails - Failed to fetch user details for user ID: {}", userId);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                return new ResponseEntity<>(user,HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (Exception e) {
             log.error("UserController:getUserDetails - Error while fetching user details for user ID: {}", userId, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

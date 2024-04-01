@@ -74,4 +74,5 @@ public class AdminController {
         log.info("AdminController:getAllInstructor {1} Getting all instructors");
         return adminService.getAllInstructor();
     }
+
 }

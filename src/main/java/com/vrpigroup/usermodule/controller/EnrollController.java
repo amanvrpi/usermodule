@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
+import static com.vrpigroup.usermodule.service.PaymentService.paymentLinkUrl;
+
 @RestController
 @RequestMapping("/course")
 public class EnrollController {
@@ -76,12 +78,11 @@ public class EnrollController {
         return ResponseEntity.ok(allCourses);
     }
 
-    // Enroll user for a course
     @PostMapping("/enroll-course")
     public ResponseEntity<String> enrollCourse(@RequestParam Long courseId, @RequestParam Long userId) {
         try {
-            courseService.enrollUserForCourse(courseId, userId);
-            return ResponseEntity.ok("Payment Link Generated successfully");
+            String paymentlink  = courseService.enrollUserForCourse(courseId, userId);
+            return ResponseEntity.ok("Payment link successfully generated : "+ paymentlink);
         } catch (CourseNotActiveException e) {
             return ResponseEntity.badRequest().body("Course is not active");
         } catch (CourseNotFoundException e) {

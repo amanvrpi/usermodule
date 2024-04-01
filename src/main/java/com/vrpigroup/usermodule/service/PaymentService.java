@@ -27,7 +27,7 @@ public class PaymentService {
     private final PaymentDetailsRequestRepo paymentDetailsRequestRepo;
     private final HttpServletResponse servletResponse;
     private String paymentLinkId = "";
-    private String paymentLinkUrl = "";
+    public static String paymentLinkUrl = "";
 
     public PaymentService(
             CourseRepository courseRepository,
@@ -61,7 +61,7 @@ public class PaymentService {
                 paymentLinkId = payment.get("id");
 
                 String paymentLinkUrl = payment.get("short_url");
-                servletResponse.sendRedirect(paymentLinkUrl);
+                servletResponse.encodeRedirectURL(paymentLinkUrl);
                 LOGGER.info("Payment link created: {}", paymentLinkUrl);
                 //String response = "Payment link URL: " + paymentLinkUrl + ", Payment link ID: " + paymentLinkId;
                 return paymentLinkUrl;
@@ -69,7 +69,7 @@ public class PaymentService {
                 LOGGER.error("Course price is not greater than 0");
                 return "Course price is not greater than 0";
             }
-        } catch (RazorpayException | IOException e) {
+        } catch (RazorpayException e) {
             LOGGER.error("Error creating payment link: {}", e.getMessage());
             return "Error creating payment link";
         }

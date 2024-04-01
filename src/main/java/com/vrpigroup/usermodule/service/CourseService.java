@@ -17,10 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 @Service
 public class CourseService {
@@ -66,22 +63,24 @@ public class CourseService {
     }
 
     @Transactional
-    public boolean enrollUserForCourse(Long courseId, Long userId) throws CourseNotFoundException, CourseNotActiveException {
+    public String enrollUserForCourse(Long courseId, Long userId) throws CourseNotFoundException, CourseNotActiveException {
         validateEnrollmentParameters(courseId, userId);
         CourseEntity course = getCachedCourseById(courseId);
         validateCourse(course, courseId);
         validateActiveCourse(course);
         try {
             ResponseEntity<Map<String, String>> paymentResponse = initiatePayment(userId, courseId);
+            String paymentLink = Objects.requireNonNull(paymentResponse.getBody()).get("paymentLinkUrl");
+
             if (paymentResponse.getStatusCode() == HttpStatus.OK) {
-                return true;
+                return paymentLink;
             } else {
                 LOGGER.error("Error initiating payment: {}", paymentResponse.getBody());
-                return false;
+                return "Error initiating payment";
             }
         } catch (Exception e) {
             LOGGER.error("Error enrolling user for course: {}", e.getMessage());
-            return false;
+            return "Error enrolling user for course";
         }
     }
 

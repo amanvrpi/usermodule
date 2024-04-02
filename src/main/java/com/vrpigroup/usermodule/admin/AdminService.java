@@ -1,6 +1,7 @@
 package com.vrpigroup.usermodule.admin;
 
 import com.vrpigroup.usermodule.entity.InstructorEntity;
+import com.vrpigroup.usermodule.entity.Roles;
 import com.vrpigroup.usermodule.entity.UserEntity;
 import com.vrpigroup.usermodule.repo.*;
 import lombok.AllArgsConstructor;
@@ -11,9 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -29,11 +29,29 @@ public class AdminService {
 
     
     private final Logger logger = LoggerFactory.getLogger(AdminService.class);
-    public List<UserEntity> getAllUser() {
+    public List<Map<String, Object>> getAllUsers() {
         try {
-            return userRepository.findAll();
+            return userRepository.findAll().stream()
+                    .map(userEntity -> {
+                        Map<String, Object> userMap = new HashMap<>();
+                        userMap.put("id", userEntity.getId());
+                        userMap.put("firstName", userEntity.getFirstName());
+                        userMap.put("lastName", userEntity.getLastName());
+                        userMap.put("fathersName", userEntity.getFathersName());
+                        userMap.put("gender", userEntity.getGender());
+                        userMap.put("dateOfBirth", userEntity.getDateOfBirth());
+                        userMap.put("phoneNumber", userEntity.getPhoneNumber());
+                        userMap.put("address", userEntity.getAddress());
+                        userMap.put("email", userEntity.getEmail());
+                        userMap.put("occupation", userEntity.getOccupation());
+                        userMap.put("aadharCardNumber", userEntity.getAadharCardNumber());
+                        userMap.put("roles", userEntity.getRoles());
+                        return userMap;
+                    })
+                    .collect(Collectors.toList());
         } catch (Exception e) {
             logger.error("Error while fetching all users", e);
+            // You can handle the exception here if needed
             return Collections.emptyList();
         }
     }

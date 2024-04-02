@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin")
@@ -54,9 +55,9 @@ public class AdminController {
     )
     @GetMapping("/all")
 
-    public List<UserEntity> getAllUser() {
+    public List<Map<String, Object>> getAllUser() {
         log.info("UserController:getAllUser {1} Getting all users");
-        return adminService.getAllUser();
+        return adminService.getAllUsers();
     }
     @PostMapping("/instructor-add")
     public ResponseEntity<String> saveInstructor(@RequestBody InstructorEntity instructorEntity) {

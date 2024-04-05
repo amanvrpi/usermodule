@@ -107,7 +107,7 @@ public class UserService {
     }
 
 
-    public UserDetailsDto loginUser(LoginDto userModule) {
+    public Long loginUser(LoginDto userModule) {
         Optional<UserEntity> userByEmail = userModuleRepository.findByEmail(userModule.getEmail());
         if(userByEmail.isEmpty()){
             throw new EmailNotFoundException("User with email not found");
@@ -115,34 +115,34 @@ public class UserService {
         if(verifyActive(userByEmail.get()) && verifyPassword(userByEmail.get(), userModule)){
             UserEntity user = userByEmail.get();
             Long userId = user.getId();
-            Optional<EducationDetails> educationDetails = educationDetailsRepo.findByUserId(userId);
-            // Fetch enrollments based on the user ID dynamically
-            List<EnrollmentEntity> enrollments = enrollmentRepository.findByUserId(userId);
-            // Map enrollments to DTOs
-            List<EnrollCourseListDto> enrolledCourses = enrollments.stream()
-                    .map(enrollment -> {
-                        EnrollCourseListDto dto = new EnrollCourseListDto();
-                        dto.setId(enrollment.getCourse().getId());
-                        dto.setCouseId(enrollment.getCourse().getLabel());
-                        dto.setCourseName(enrollment.getCourse().getCourseName());
-                        // Set any other fields as needed
-                        return dto;
-                    })
-                    .collect(Collectors.toList());
-            // Create UserDetailsDto based on fetched data
-            UserDetailsDto userDetailsDto;
-            userDetailsDto = educationDetails.map(details -> new UserDetailsDto(
-                    UserMapper.userToUserDto(user, new UserDto()),
-                    enrolledCourses,
-                    UserMapper.educationDetailsToEducationDetailsDto(details),
-                    UserConstants.HttpStatus_OK
-            )).orElseGet(() -> new UserDetailsDto(
-                    UserMapper.userToUserDto(user, new UserDto()),
-                    enrolledCourses,
-                    null,
-                    UserConstants.HttpStatus_OK
-            ));
-            return userDetailsDto;
+//            Optional<EducationDetails> educationDetails = educationDetailsRepo.findByUserId(userId);
+//            // Fetch enrollments based on the user ID dynamically
+//            List<EnrollmentEntity> enrollments = enrollmentRepository.findByUserId(userId);
+//            // Map enrollments to DTOs
+//            List<EnrollCourseListDto> enrolledCourses = enrollments.stream()
+//                    .map(enrollment -> {
+//                        EnrollCourseListDto dto = new EnrollCourseListDto();
+//                        dto.setId(enrollment.getCourse().getId());
+//                        dto.setCouseId(enrollment.getCourse().getLabel());
+//                        dto.setCourseName(enrollment.getCourse().getCourseName());
+//                        // Set any other fields as needed
+//                        return dto;
+//                    })
+//                    .collect(Collectors.toList());
+//            // Create UserDetailsDto based on fetched data
+//            UserDetailsDto userDetailsDto;
+//            userDetailsDto = educationDetails.map(details -> new UserDetailsDto(
+//                    UserMapper.userToUserDto(user, new UserDto()),
+//                    enrolledCourses,
+//                    UserMapper.educationDetailsToEducationDetailsDto(details),
+//                    UserConstants.HttpStatus_OK
+//            )).orElseGet(() -> new UserDetailsDto(
+//                    UserMapper.userToUserDto(user, new UserDto()),
+//                    enrolledCourses,
+//                    null,
+//                    UserConstants.HttpStatus_OK
+//            ));
+            return userId;
         }
         return null;
     }

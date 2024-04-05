@@ -97,11 +97,11 @@ public class UserController {
             summary = "Login User",
             description = "Login user")
     @PostMapping("/login")
-    public ResponseEntity<UserDetailsDto> loginUser(@Validated @RequestBody LoginDto loginDto) {
-        UserDetailsDto user = null;
+    public ResponseEntity<Long> loginUser(@Validated @RequestBody LoginDto loginDto) {
+//        UserDetailsDto user = null;
 
             log.info("UserController:loginUser - Attempting login for user: {}", loginDto.getEmail());
-            user = userModuleService.loginUser(loginDto);
+       Long user = userModuleService.loginUser(loginDto);
             if (user != null) {
                 return new ResponseEntity<>(user, HttpStatus.OK);
             } else {

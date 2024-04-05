@@ -141,12 +141,18 @@ public class PaymentService {
                 paymentDetailsRequest.setPaymentId(paymentId);
                 paymentDetailsRequest.setAmount(Long.valueOf(amount));
                 storePaymentDetails(paymentDetailsRequest);
-                paymentDetailsRequestRepo.save(paymentDetailsRequest);
-
-                EnrollmentEntity enrollmentEntity = new EnrollmentEntity();
-                enrollmentEntity.setUser(userRepository.findById(userId).get());
-                enrollmentEntity.setCourse(courseRepository.findById(courseId).get());
-                enrollmentRepository.save(enrollmentEntity);
+                Optional<EnrollmentEntity> existingEnrollment = enrollmentRepository.findByUserIdAndCourseId(userId, courseId);
+                if (existingEnrollment.isPresent()) {
+                    return null;
+                } else {
+                    EnrollmentEntity enrollmentEntity = new EnrollmentEntity();
+                    enrollmentEntity.setUser(userRepository.findById(userId).
+                            orElseThrow(() -> new RuntimeException("User not found for userId: " + userId)));
+                    enrollmentEntity.setCourse(courseRepository.findById(courseId).
+                            orElseThrow(() -> new RuntimeException("Course not found for courseId: " + courseId)));
+                    paymentDetailsRequestRepo.save(paymentDetailsRequest);
+                    enrollmentRepository.save(enrollmentEntity);
+                }
                 return payment;
             } else {
                 return null;

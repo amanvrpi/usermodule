@@ -99,7 +99,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<UserDetailsDto> loginUser(@Validated @RequestBody LoginDto loginDto) {
         UserDetailsDto user = null;
-        try {
+
             log.info("UserController:loginUser - Attempting login for user: {}", loginDto.getEmail());
             user = userModuleService.loginUser(loginDto);
             if (user != null) {
@@ -108,10 +108,7 @@ public class UserController {
                 log.warn("UserController:loginUser - Invalid credentials for user");
                 return new ResponseEntity<>(user, HttpStatus.INTERNAL_SERVER_ERROR);
             }
-        } catch (Exception e) {
-            log.error("UserController:loginUser - Error during login for user: {}", loginDto.getEmail(), e);
-            return new ResponseEntity<>(user, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+
     }
 
     /*@Operation(

@@ -1,9 +1,12 @@
 package com.vrpigroup.usermodule.service;
 
 import com.razorpay.*;
+import com.vrpigroup.usermodule.entity.EnrollmentEntity;
 import com.vrpigroup.usermodule.entity.PaymentDetailsRequest;
 import com.vrpigroup.usermodule.repo.CourseRepository;
+import com.vrpigroup.usermodule.repo.EnrollmentRepository;
 import com.vrpigroup.usermodule.repo.PaymentDetailsRequestRepo;
+import com.vrpigroup.usermodule.repo.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -21,6 +24,8 @@ public class PaymentService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PaymentService.class);
 
     private final RazorpayClient razorpay;
+    private final UserRepository userRepository;
+    private final EnrollmentRepository enrollmentRepository;
     private final String apiKey = "rzp_test_HDibd0r72mDwz5";
     private final String apiSecret = "AIs9tgYbPT4quUHU8VfMPcGy";
     private final CourseRepository courseRepository;
@@ -30,10 +35,12 @@ public class PaymentService {
     public static String paymentLinkUrl = "";
 
     public PaymentService(
-            CourseRepository courseRepository,
+            UserRepository userRepository, EnrollmentRepository enrollmentRepository, CourseRepository courseRepository,
             PaymentDetailsRequestRepo paymentDetailsRequestRepo,/*,
             @Value("${razorpay.api.key}") String apiKey,
             @Value("${razorpay.api.secret}") String apiSecret*/HttpServletResponse servletResponse) {
+        this.userRepository = userRepository;
+        this.enrollmentRepository = enrollmentRepository;
         this.courseRepository = courseRepository;
         this.paymentDetailsRequestRepo = paymentDetailsRequestRepo;
         try {
@@ -135,6 +142,11 @@ public class PaymentService {
                 paymentDetailsRequest.setAmount(Long.valueOf(amount));
                 storePaymentDetails(paymentDetailsRequest);
                 paymentDetailsRequestRepo.save(paymentDetailsRequest);
+
+                EnrollmentEntity enrollmentEntity = new EnrollmentEntity();
+                enrollmentEntity.setUser(userRepository.findById(userId).get());
+                enrollmentEntity.setCourse(courseRepository.findById(courseId).get());
+                enrollmentRepository.save(enrollmentEntity);
                 return payment;
             } else {
                 return null;

@@ -2,6 +2,7 @@ package com.vrpigroup.usermodule.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.util.Date;
 
@@ -19,6 +20,6 @@ public class EnrollmentEntity {
     @ManyToOne
     private CourseEntity course;
 
-    @Temporal(TemporalType.DATE)
+    @CreatedDate
     private Date enrollmentDate;
 }

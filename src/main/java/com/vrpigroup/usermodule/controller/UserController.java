@@ -77,8 +77,8 @@ public class UserController {
             log.info("UserController:verifyAccount - Verifying account for email: {}", email);
             if (userModuleService.verifyAccount(email, otp)) {
                 log.info("UserController:verifyAccount - Account verified successfully for email: {}", email);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDto
-                        (UserConstants.ACCOUNT_VERIFIED_SUCCESSFULLY, UserConstants.USER_ACCOUNT_CREATED_SUCCESSFULLY));
+                return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto
+                        (UserConstants.HttpStatus_OK, UserConstants.USER_ACCOUNT_CREATED_SUCCESSFULLY));
             } else {
                 log.warn("UserController:verifyAccount - Failed to verify account for email: {}", email);
 

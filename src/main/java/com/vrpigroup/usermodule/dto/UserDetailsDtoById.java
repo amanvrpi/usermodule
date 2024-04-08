@@ -1,6 +1,7 @@
 package com.vrpigroup.usermodule.dto;
 
 import com.vrpigroup.usermodule.entity.CourseEntity;
+import com.vrpigroup.usermodule.entity.PaymentDetailsRequest;
 import com.vrpigroup.usermodule.entity.UserEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

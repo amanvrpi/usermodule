@@ -8,10 +8,7 @@ import com.vrpigroup.usermodule.exception.EmailNotFoundException;
 import com.vrpigroup.usermodule.exception.InvalidPasswordException;
 import com.vrpigroup.usermodule.exception.UserAlreadyExistException;
 import com.vrpigroup.usermodule.mapper.UserMapper;
-import com.vrpigroup.usermodule.repo.ContactUsRepo;
-import com.vrpigroup.usermodule.repo.EducationDetailsRepo;
-import com.vrpigroup.usermodule.repo.EnrollmentRepository;
-import com.vrpigroup.usermodule.repo.UserRepository;
+import com.vrpigroup.usermodule.repo.*;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -41,6 +38,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final EnrollmentRepository enrollmentRepository;
     private  final EducationDetailsRepo educationDetailsRepo;
+    private final PaymentDetailsRequestRepo paymentDetailsRequestRepo;
 
 
 
@@ -276,19 +274,26 @@ public class UserService {
             // Fetch enrollments for the user
             List<EnrollmentEntity> enrollments = enrollmentRepository.findByUserId(userId);
 
+            PaymentDetailsRequest paymentDetails = paymentDetailsRequestRepo.findByUserId(userId);
+
             // Map enrollments to EnrollCourseListDto
             List<EnrollCourseListDto> courseList = enrollments.stream()
                     .map(enrollment -> new EnrollCourseListDto(
                             enrollment.getCourse().getId(),
+                            enrollment.getCourse().getDuration(),
                             enrollment.getCourse().getLabel(),
-                            enrollment.getCourse().getCourseName()
+                            enrollment.getCourse().getCourseName(),
+                            enrollment.getEnrollmentDate(),
+                            enrollment.getCourse().getPrice()
                             // Add other properties as needed
                     ))
                     .collect(Collectors.toList());
+            System.out.println(courseList);
 
             // Fetch education details for the user
             Optional<EducationDetails> optionalEducationDetails = educationDetailsRepo.findByUserId(userId);
-            EducationDetailsDto educationDetailsDto = optionalEducationDetails.map(UserMapper::educationDetailsToEducationDetailsDto).orElse(null);
+            EducationDetailsDto educationDetailsDto = optionalEducationDetails.map(UserMapper::
+                    educationDetailsToEducationDetailsDto).orElse(null);
 
             // Create UserDetailsDto with mapped data
             return new UserDetailsDtoById(userDto, courseList, educationDetailsDto, UserConstants.HttpStatus_OK);

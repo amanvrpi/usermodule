@@ -68,21 +68,21 @@ public class UserEntity {
 
     @Schema(name = "aadharFront", description = "Aadhar Front", example = "aadhar_front.jpg")
     @Lob
-    @Column(length = 5000000)
+    @Column(length = 5000000, columnDefinition = "BLOB")
     private byte[] aadharFront;
 
     @Schema(name = "aadharBack", description = "Aadhar Back", example = "aadhar_back.jpg")
     @Lob
-    @Column(length = 5000000)
+    @Column(length = 5000000,columnDefinition = "BLOB")
     private byte[] aadharBack;
 
     @Lob
-    @Column(length = 5000000)
+    @Column(length = 5000000, columnDefinition = "BLOB")
     @Schema(name = "profilePic", description = "Profile Picture", example = "profile.jpg")
     private byte[] profilePic;
 
     @Lob
-    @Column(length = 5000000)
+    @Column(length = 5000000,columnDefinition = "BLOB")
     @Schema(name = "incomeCert", description = "incomeCert", example = "incomeCert.jpg")
     private byte[] incomeCert;
 

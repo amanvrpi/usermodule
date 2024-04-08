@@ -40,8 +40,6 @@ public class UserService {
     private final EnrollmentRepository enrollmentRepository;
     private  final EducationDetailsRepo educationDetailsRepo;
     private final PaymentDetailsRequestRepo paymentDetailsRequestRepo;
-    @Lob
-    private byte[] imageData;
 
 
 //    private final SecurityConfig securityConfig;
@@ -106,46 +104,6 @@ public class UserService {
         }
     }
 
-
-    public Long loginUser(LoginDto userModule) {
-        Optional<UserEntity> userByEmail = userModuleRepository.findByEmail(userModule.getEmail());
-        if(userByEmail.isEmpty()){
-            throw new EmailNotFoundException("User with email not found");
-        }
-        if(verifyActive(userByEmail.get()) && verifyPassword(userByEmail.get(), userModule)){
-            UserEntity user = userByEmail.get();
-            Long userId = user.getId();
-//            Optional<EducationDetails> educationDetails = educationDetailsRepo.findByUserId(userId);
-//            // Fetch enrollments based on the user ID dynamically
-//            List<EnrollmentEntity> enrollments = enrollmentRepository.findByUserId(userId);
-//            // Map enrollments to DTOs
-//            List<EnrollCourseListDto> enrolledCourses = enrollments.stream()
-//                    .map(enrollment -> {
-//                        EnrollCourseListDto dto = new EnrollCourseListDto();
-//                        dto.setId(enrollment.getCourse().getId());
-//                        dto.setCouseId(enrollment.getCourse().getLabel());
-//                        dto.setCourseName(enrollment.getCourse().getCourseName());
-//                        // Set any other fields as needed
-//                        return dto;
-//                    })
-//                    .collect(Collectors.toList());
-//            // Create UserDetailsDto based on fetched data
-//            UserDetailsDto userDetailsDto;
-//            userDetailsDto = educationDetails.map(details -> new UserDetailsDto(
-//                    UserMapper.userToUserDto(user, new UserDto()),
-//                    enrolledCourses,
-//                    UserMapper.educationDetailsToEducationDetailsDto(details),
-//                    UserConstants.HttpStatus_OK
-//            )).orElseGet(() -> new UserDetailsDto(
-//                    UserMapper.userToUserDto(user, new UserDto()),
-//                    enrolledCourses,
-//                    null,
-//                    UserConstants.HttpStatus_OK
-//            ));
-            return userId;
-        }
-        return null;
-    }
 
     private boolean verifyActive(UserEntity user) {
         if (user.isActive()) {
@@ -232,7 +190,7 @@ public class UserService {
         Optional<UserEntity> userOptional = userModuleRepository.findById(id);
         if (userOptional.isPresent()) {
             UserEntity user = userOptional.get();
-            imageData = null;
+            byte[] imageData = null;
 
             switch (field) {
                 case "profilePic":
@@ -322,6 +280,20 @@ public class UserService {
                 logger.error("Error while setting Stroring image/pdf for user", e);
             }
         }
+    }
+
+    @Transactional
+    public Long loginUser(LoginDto loginDto) {
+        Optional<UserEntity> user = userModuleRepository.findByEmail(loginDto.getEmail());
+        if (user.isPresent()) {
+            UserEntity userEntity = user.get();
+            if (verifyActive(userEntity) && verifyPassword(userEntity, loginDto)) {
+                return userEntity.getId();
+            }
+        } else {
+            throw new EmailNotFoundException(UserConstants.EMAIL_NOT_FOUND);
+        }
+        return null;
     }
 
     /*public Object getUserData(Long userId) {

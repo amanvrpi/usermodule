@@ -107,6 +107,7 @@ public class UserConstants {
     public static final String FORGOT_PASSWORD_SUCCESS = "Forgot password success";
     public static final String FAILED_TO_PROCESS_FORGOT_PASSWORD = "Failed to process forgot password";
     public static final Object ACCOUNT_NOT_VERIFIED = "Account not verified";
+    public static final String EMAIL_NOT_FOUND = "Email not found";
     ;
     ;
 }

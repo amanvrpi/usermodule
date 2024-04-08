@@ -46,9 +46,6 @@ public class UserController {
         this.userModuleService = userModuleService;
     }
 
-    @Lob
-    private byte[] image;
-
     @Operation(
             summary = "Create User",
             description = "Create user account")
@@ -192,7 +189,7 @@ public class UserController {
     @GetMapping("/get-image/{field}/{userId}")
     public ResponseEntity<?> getImage(@PathVariable String field, @PathVariable Long userId) {
         try {
-            image = userModuleService.getImage(userId, field);
+            byte[] image = userModuleService.getImage(userId, field);
             if (image != null) {
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.IMAGE_PNG);

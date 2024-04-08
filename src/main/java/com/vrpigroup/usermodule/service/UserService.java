@@ -273,9 +273,6 @@ public class UserService {
 
             // Fetch enrollments for the user
             List<EnrollmentEntity> enrollments = enrollmentRepository.findByUserId(userId);
-
-            PaymentDetailsRequest paymentDetails = paymentDetailsRequestRepo.findByUserId(userId);
-
             // Map enrollments to EnrollCourseListDto
             List<EnrollCourseListDto> courseList = enrollments.stream()
                     .map(enrollment -> new EnrollCourseListDto(

@@ -98,8 +98,6 @@ public class UserController {
             description = "Login user")
     @PostMapping("/login")
     public ResponseEntity<Long> loginUser(@Validated @RequestBody LoginDto loginDto) {
-//        UserDetailsDto user = null;
-
             log.info("UserController:loginUser - Attempting login for user: {}", loginDto.getEmail());
        Long user = userModuleService.loginUser(loginDto);
             if (user != null) {

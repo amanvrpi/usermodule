@@ -74,7 +74,7 @@ public class EnrollController {
     public ResponseEntity<String> enrollCourse(@RequestParam Long courseId, @RequestParam Long userId) {
         try {
             String paymentlink  = courseService.enrollUserForCourse(courseId, userId);
-            return ResponseEntity.ok("Payment link successfully generated : "+ paymentlink);
+            return ResponseEntity.ok(paymentlink);
         } catch (CourseNotActiveException e) {
             return ResponseEntity.badRequest().body("Course is not active");
         } catch (CourseNotFoundException e) {

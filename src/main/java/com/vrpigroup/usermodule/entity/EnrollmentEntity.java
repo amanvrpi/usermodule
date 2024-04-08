@@ -20,6 +20,6 @@ public class EnrollmentEntity {
     @ManyToOne
     private CourseEntity course;
 
-    @CreatedDate
-    private Date enrollmentDate;
+    @Temporal(TemporalType.DATE)
+    private Date enrollmentDate = new Date();
 }

@@ -130,37 +130,58 @@ public class PaymentService {
 
     public Payment verifyPayment(String paymentId, int amount, Long userId, Long courseId, String signature) {
         try {
+            // Fetch payment details from Razorpay
             Payment payment = razorpay.payments.fetch(paymentId);
             System.out.println(payment);
+
+            // Verify if the fetched payment amount matches the provided amount
             if (payment.get("amount").equals(amount)) {
+                // Generate invoice for the payment
                 generateInvoice(amount, userId, courseId);
-                PaymentDetailsRequest paymentDetailsRequest = new PaymentDetailsRequest();
-                paymentDetailsRequest.setSignature(signature);
-                paymentDetailsRequest.setUserId(userId);
-                paymentDetailsRequest.setCourseId(courseId);
-                paymentDetailsRequest.setPaymentId(paymentId);
-                paymentDetailsRequest.setAmount(Long.valueOf(amount));
-                storePaymentDetails(paymentDetailsRequest);
+
+                // Check if there is an existing enrollment and payment details
                 Optional<EnrollmentEntity> existingEnrollment = enrollmentRepository.findByUserIdAndCourseId(userId, courseId);
-                if (existingEnrollment.isPresent()) {
+                Optional<PaymentDetailsRequest> existingPayment = paymentDetailsRequestRepo.findByUserIdAndCourseId(userId, courseId);
+
+                if (existingEnrollment.isPresent() && existingPayment.isPresent()) {
+                    // If both enrollment and payment details exist, return null (indicating duplicate)
                     return null;
                 } else {
+                    // Otherwise, proceed to create new enrollment and payment details
                     EnrollmentEntity enrollmentEntity = new EnrollmentEntity();
-                    enrollmentEntity.setUser(userRepository.findById(userId).
-                            orElseThrow(() -> new RuntimeException("User not found for userId: " + userId)));
-                    enrollmentEntity.setCourse(courseRepository.findById(courseId).
-                            orElseThrow(() -> new RuntimeException("Course not found for courseId: " + courseId)));
-                    paymentDetailsRequestRepo.save(paymentDetailsRequest);
+                    enrollmentEntity.setUser(userRepository.findById(userId)
+                            .orElseThrow(() -> new RuntimeException("User not found for userId: " + userId)));
+                    enrollmentEntity.setCourse(courseRepository.findById(courseId)
+                            .orElseThrow(() -> new RuntimeException("Course not found for courseId: " + courseId)));
+
+                    // Create a new PaymentDetailsRequest object and set its properties
+                    PaymentDetailsRequest paymentDetailsRequest = new PaymentDetailsRequest();
+                    paymentDetailsRequest.setSignature(signature);
+                    paymentDetailsRequest.setUserId(userId);
+                    paymentDetailsRequest.setCourseId(courseId);
+                    paymentDetailsRequest.setPaymentId(paymentId);
+                    paymentDetailsRequest.setAmount(Long.valueOf(amount));
+
+                    // Store payment details in the repository
+                    storePaymentDetails(paymentDetailsRequest);
+                    /*paymentDetailsRequestRepo.save(paymentDetailsRequest);*/
+
+                    // Save enrollment entity in the repository
                     enrollmentRepository.save(enrollmentEntity);
+
+                    // Return the payment object
+                    return payment;
                 }
-                return payment;
             } else {
+                // If payment amount doesn't match, return null
                 return null;
             }
         } catch (RazorpayException e) {
+            // Handle Razorpay API exceptions
             return null;
         }
     }
+
 
     private void generateInvoice(int amount, Long userId, Long courseId) {
         try {

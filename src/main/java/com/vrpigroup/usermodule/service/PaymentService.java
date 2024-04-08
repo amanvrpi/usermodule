@@ -139,8 +139,13 @@ public class PaymentService {
                 // Generate invoice for the payment
                 generateInvoice(amount, userId, courseId);
 
+                var user = userRepository.findById(userId)
+                        .orElseThrow(() -> new RuntimeException("User not found for userId: " + userId));
+                var course = courseRepository.findById(courseId)
+                        .orElseThrow(() -> new RuntimeException("Course not found for courseId: " + courseId));
                 // Check if there is an existing enrollment and payment details
-                Optional<EnrollmentEntity> existingEnrollment = enrollmentRepository.findByUserIdAndCourseId(userId, courseId);
+                Optional<EnrollmentEntity> existingEnrollment = enrollmentRepository.findByUserAndCourse(user, course);
+                System.out.println(existingEnrollment);
                 Optional<PaymentDetailsRequest> existingPayment = paymentDetailsRequestRepo.findByUserIdAndCourseId(userId, courseId);
 
                 if (existingEnrollment.isPresent() && existingPayment.isPresent()) {
@@ -160,7 +165,7 @@ public class PaymentService {
                     paymentDetailsRequest.setUserId(userId);
                     paymentDetailsRequest.setCourseId(courseId);
                     paymentDetailsRequest.setPaymentId(paymentId);
-                    paymentDetailsRequest.setAmount(Long.valueOf(amount));
+                    paymentDetailsRequest.setAmount((long) amount);
 
                     // Store payment details in the repository
                     storePaymentDetails(paymentDetailsRequest);

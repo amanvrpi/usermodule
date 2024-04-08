@@ -6,6 +6,7 @@ import com.vrpigroup.usermodule.entity.ContactUs;
 import com.vrpigroup.usermodule.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.Lob;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -45,6 +46,8 @@ public class UserController {
         this.userModuleService = userModuleService;
     }
 
+    @Lob
+    private byte[] image;
 
     @Operation(
             summary = "Create User",
@@ -189,10 +192,11 @@ public class UserController {
     @GetMapping("/get-image/{field}/{userId}")
     public ResponseEntity<?> getImage(@PathVariable String field, @PathVariable Long userId) {
         try {
-            byte[] image = userModuleService.getImage(userId, field);
+            image = userModuleService.getImage(userId, field);
             if (image != null) {
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.IMAGE_PNG);
+                headers.setContentType(MediaType.IMAGE_JPEG);
                 return new ResponseEntity<>(image, headers, HttpStatus.OK);
             } else {
                 return ResponseEntity.notFound().build();

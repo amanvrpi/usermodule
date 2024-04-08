@@ -9,6 +9,7 @@ import com.vrpigroup.usermodule.exception.InvalidPasswordException;
 import com.vrpigroup.usermodule.exception.UserAlreadyExistException;
 import com.vrpigroup.usermodule.mapper.UserMapper;
 import com.vrpigroup.usermodule.repo.*;
+import jakarta.persistence.Lob;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -39,7 +40,8 @@ public class UserService {
     private final EnrollmentRepository enrollmentRepository;
     private  final EducationDetailsRepo educationDetailsRepo;
     private final PaymentDetailsRequestRepo paymentDetailsRequestRepo;
-
+    @Lob
+    private byte[] imageData;
 
 
 //    private final SecurityConfig securityConfig;
@@ -230,7 +232,7 @@ public class UserService {
         Optional<UserEntity> userOptional = userModuleRepository.findById(id);
         if (userOptional.isPresent()) {
             UserEntity user = userOptional.get();
-            byte[] imageData = null;
+            imageData = null;
 
             switch (field) {
                 case "profilePic":
@@ -270,7 +272,6 @@ public class UserService {
         if (optionalUser.isPresent()) {
             UserEntity userEntity = optionalUser.get();
             DocResponseByUserGetId userDto = UserMapper.userToDocResponseByUserGetId(userEntity, new DocResponseByUserGetId());
-
             // Fetch enrollments for the user
             List<EnrollmentEntity> enrollments = enrollmentRepository.findByUserId(userId);
             // Map enrollments to EnrollCourseListDto
@@ -286,7 +287,6 @@ public class UserService {
                     ))
                     .collect(Collectors.toList());
             System.out.println(courseList);
-
             // Fetch education details for the user
             Optional<EducationDetails> optionalEducationDetails = educationDetailsRepo.findByUserId(userId);
             EducationDetailsDto educationDetailsDto = optionalEducationDetails.map(UserMapper::

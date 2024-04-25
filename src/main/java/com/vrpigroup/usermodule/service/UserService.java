@@ -63,7 +63,7 @@ public class UserService {
                 throw new UserAlreadyExistException(USER_WITH_USERNAME_OR_EMAIL_ALREADY_EXISTS+userDto.getEmail());
             }
             UserMapper userMapper = new UserMapper(passwordEncoder);
-         boolean isValid=   emailValidation.isEmailValid(userDto.getEmail());
+         boolean isValid = emailValidation.isEmailValid(userDto.getEmail());
             UserEntity userEntity = new UserEntity();
             UserEntity user = userMapper.userDtoToUser(userEntity,userDto);
             try {

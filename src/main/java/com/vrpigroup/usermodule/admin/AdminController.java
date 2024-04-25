@@ -54,7 +54,6 @@ public class AdminController {
             description = "Get all users"
     )
     @GetMapping("/all")
-
     public List<Map<String, Object>> getAllUser() {
         log.info("UserController:getAllUser {1} Getting all users");
         return adminService.getAllUsers();

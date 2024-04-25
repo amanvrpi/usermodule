@@ -66,7 +66,6 @@ public class PaymentService {
                 JSONObject paymentLinkRequest = createPaymentLinkRequest(Math.toIntExact(coursePrice), firstName, lastName, mobile, email, orderId, userId, courseId, paymentLinkId, paymentLinkUrl);
                 PaymentLink payment = razorpay.paymentLink.create(paymentLinkRequest);
                 paymentLinkId = payment.get("id");
-
                 String paymentLinkUrl = payment.get("short_url");
                 servletResponse.encodeRedirectURL(paymentLinkUrl);
                 LOGGER.info("Payment link created: {}", paymentLinkUrl);
@@ -105,7 +104,6 @@ public class PaymentService {
         paymentLinkRequest.put("notify", notify);
         paymentLinkRequest.put("reminder_enable", true);
         paymentLinkRequest.put("expire_by", System.currentTimeMillis() + 86400000);
-
         // Constructing the callback URL with dynamic parameters
         String callbackUrl = "https://vrpigroup.com/course/verify-payment"
                 + "?orderId=" + orderId
@@ -133,12 +131,10 @@ public class PaymentService {
             // Fetch payment details from Razorpay
             Payment payment = razorpay.payments.fetch(paymentId);
             System.out.println(payment);
-
             // Verify if the fetched payment amount matches the provided amount
             if (payment.get("amount").equals(amount)) {
                 // Generate invoice for the payment
                 generateInvoice(amount, userId, courseId);
-
                 var user = userRepository.findById(userId)
                         .orElseThrow(() -> new RuntimeException("User not found for userId: " + userId));
                 var course = courseRepository.findById(courseId)
@@ -166,14 +162,11 @@ public class PaymentService {
                     paymentDetailsRequest.setCourseId(courseId);
                     paymentDetailsRequest.setPaymentId(paymentId);
                     paymentDetailsRequest.setAmount((long) amount);
-
                     // Store payment details in the repository
                     storePaymentDetails(paymentDetailsRequest);
                     /*paymentDetailsRequestRepo.save(paymentDetailsRequest);*/
-
                     // Save enrollment entity in the repository
                     enrollmentRepository.save(enrollmentEntity);
-
                     // Return the payment object
                     return payment;
                 }
